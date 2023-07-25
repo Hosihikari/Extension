@@ -1,35 +1,41 @@
-﻿// namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
-//
-// public class ChatEventHook : HookWithEvent<ChatEventArgs, ChatEvent, ChatEventHook.HookDelegate>
-// {
-//     public ChatEventHook()
-//         : base("todo") { }
-//
-//     public delegate void HookDelegate();
-//
-//     public override HookDelegate HookedFunc =>
-//         () =>
-//         {
-//             var e = new ChatEventArgs();
-//             Event.OnEventBefore(e);
-//             if (e.IsCanceled)
-//                 return;
-//             Original();
-//             Event.OnEventAfter(e);
-//         };
-// }
-//
-// public class ChatEventArgs : CancelableEventArgs { }
-//
-// public class ChatEvent : EventBase<ChatEventArgs>
-// {
-//     public override void BeforeEventAdded()
-//     {
-//         //todo install hook when first event added
-//     }
-//
-//     public override void OnEventAllRemoved()
-//     {
-//         //todo uninstall hook when all event removed
-//     }
-// }
+﻿namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
+
+public class ChatEventArgs : CancelableEventArgs
+{
+    public required ServerPlayer Player { get; init; }
+}
+
+public class ChatEvent : HookEventBase<ChatEventArgs, ChatEvent.HookDelegate>
+{
+    public ChatEvent()
+        : base("_ZN20ServerNetworkHandler6handleERK17NetworkIdentifierRK10TextPacket") { }
+
+    public unsafe delegate void HookDelegate(
+        void* networkHandler,
+        void* networkIdentifier,
+        void* textPacket
+    );
+    public override unsafe HookDelegate HookedFunc =>
+        (networkHandlerPtr, networkIdentifierPtr, textPacket) =>
+        {
+            try
+            {
+                var networkHandler = new ServerNetworkHandler(networkHandlerPtr);
+                var networkIdentifier = new NetworkIdentifier(networkIdentifierPtr);
+                var packet = new Packet(textPacket);
+                if (networkHandler.TryFetchPlayer(networkIdentifier, packet, out var player))
+                {
+                    var e = new ChatEventArgs { Player = player };
+                    OnEventBefore(e);
+                    if (e.IsCanceled)
+                        return; //cancel the original
+                    Original(networkHandlerPtr, networkIdentifierPtr, textPacket);
+                    OnEventAfter(e);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(nameof(ChatEvent), ex);
+            }
+        };
+}
