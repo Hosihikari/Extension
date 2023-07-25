@@ -1,11 +1,9 @@
-﻿using Hosihikari.Core;
+﻿namespace Hosihikari.Minecraft.Extension.Events;
 
-namespace Hosihikari.Minecraft.Events;
-
-public class HookEventBase<T, TEventArgs, TEvent, THookDelegate> : HosihikariEventBase<T>
-    where T : HosihikariEventArgs
-    where TEventArgs : HosihikariEventArgs
-    where TEvent : HosihikariEventBase<TEventArgs>, new()
+public class HookEventBase<T, TEventArgs, TEvent, THookDelegate> : EventBase<T>
+    where T : EventArgs
+    where TEventArgs : EventArgs
+    where TEvent : EventBase<TEventArgs>, new()
     where THookDelegate : Delegate
 {
     public override void BeforeEventAdded()

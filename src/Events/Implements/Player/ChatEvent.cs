@@ -1,6 +1,4 @@
-﻿using Hosihikari.Core;
-
-namespace Hosihikari.Minecraft.Events.Implements.Player;
+﻿namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
 
 public class ChatEventHook : HookWithEvent<ChatEventArgs, ChatEvent, ChatEventHook.HookDelegate>
 {
@@ -21,9 +19,9 @@ public class ChatEventHook : HookWithEvent<ChatEventArgs, ChatEvent, ChatEventHo
         };
 }
 
-public class ChatEventArgs : HosihikariCancelableEventArgs { }
+public class ChatEventArgs : CancelableEventArgs { }
 
-public class ChatEvent : HosihikariEventBase<ChatEventArgs>
+public class ChatEvent : EventBase<ChatEventArgs>
 {
     public override void BeforeEventAdded()
     {

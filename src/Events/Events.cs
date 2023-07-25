@@ -1,6 +1,4 @@
-﻿using Hosihikari.Minecraft.Events.Implements.Player;
-
-namespace Hosihikari.Minecraft.Events;
+﻿namespace Hosihikari.Minecraft.Extension.Events;
 
 public static class Events
 {
