@@ -1,18 +1,56 @@
-﻿namespace Hosihikari.Minecraft.Extension.Events;
+﻿using Hosihikari.NativeInterop.Hook.ObjectOriented;
 
-public class HookEventBase<T, TEventArgs, TEvent, THookDelegate> : EventBase<T>
-    where T : EventArgs
+namespace Hosihikari.Minecraft.Extension.Events;
+
+public abstract class HookEventBase<TEventArgs, THookDelegate> : HookBase<THookDelegate>
     where TEventArgs : EventArgs
-    where TEvent : EventBase<TEventArgs>, new()
     where THookDelegate : Delegate
 {
-    public override void BeforeEventAdded()
+    private event EventHandler<TEventArgs>? InternalBefore;
+    private event EventHandler<TEventArgs>? InternalAfter;
+    private event EventHandler<TEventArgs>? InternalAsync;
+
+    public event EventHandler<TEventArgs> Before
+    {
+        add
+        {
+            CheckEventAdded();
+            InternalBefore += value;
+        }
+        remove
+        {
+            InternalBefore -= value;
+            CheckEventRemoved();
+        }
+    }
+
+    private void CheckEventAdded()
+    {
+        if (InternalBefore is null && InternalAfter is null && InternalAsync is null)
+            BeforeEventAdded();
+    }
+
+    private void CheckEventRemoved()
+    {
+        if (InternalBefore is null && InternalAfter is null && InternalAsync is null)
+            OnEventAllRemoved();
+    }
+
+    protected virtual void BeforeEventAdded()
     {
         //todo install hook when first event added
     }
 
-    public override void OnEventAllRemoved()
+    protected virtual void OnEventAllRemoved()
     {
         //todo uninstall hook when all event removed
     }
+
+    protected void OnEventBefore(TEventArgs e) => InternalBefore?.Invoke(this, e);
+    protected void OnEventAfter(TEventArgs e)
+    {
+        InternalAfter?.Invoke(this, e);
+    }
+
+    protected HookEventBase(string symbol) : base(symbol) { }
 }
