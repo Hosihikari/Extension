@@ -13,7 +13,8 @@ internal class FilePathManagerHook : HookBase<FilePathManagerHook.HookDelegate>
         (@this, a2, a3) =>
         {
             Global.FilePathManager.Instance = new Core.FilePathManager(@this);
+            var result = Original(@this, a2, a3);
             TryUninstall();
-            return Original(@this, a2, a3);
+            return result;
         };
 }
