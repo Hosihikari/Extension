@@ -10,5 +10,6 @@ internal class EntryPoint
     internal static void Main() // must be loaded
     {
         LevelTick.InitHook();
+        GlobalService.Global.Init();
     }
 }
