@@ -1,12 +1,12 @@
 ﻿namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
 
-public class ChatEventArgsBase : CancelableEventArgsBase
+public class ChatEventArgs : CancelableEventArgsBase
 {
     public required ServerPlayer Player { get; init; }
     public required string Message { get; init; }
 }
 
-public class ChatEvent : HookCancelableEventBase<ChatEventArgsBase, ChatEvent.HookDelegate>
+public class ChatEvent : HookCancelableEventBase<ChatEventArgs, ChatEvent.HookDelegate>
 {
     public ChatEvent()
         : base("_ZN20ServerNetworkHandler6handleERK17NetworkIdentifierRK10TextPacket") { }
@@ -33,7 +33,7 @@ public class ChatEvent : HookCancelableEventBase<ChatEventArgsBase, ChatEvent.Ho
                         Original(networkHandlerPtr, networkIdentifierPtr, textPacketPtr);
                         return;
                     }
-                    var e = new ChatEventArgsBase
+                    var e = new ChatEventArgs
                     {
                         Player = player,
                         Message = NativeInterop.Utils.StringUtils.MarshalStdString((byte*)textPacketPtr + OffsetData.Current.TextPacketMessageOffsetByte)//80
