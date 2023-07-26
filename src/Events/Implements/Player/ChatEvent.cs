@@ -1,12 +1,12 @@
 ﻿namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
 
-public class ChatEventArgs : CancelableEventArgs
+public class ChatEventArgsBase : CancelableEventArgsBase
 {
     public required ServerPlayer Player { get; init; }
     public required string Message { get; init; }
 }
 
-public class ChatEvent : HookEventBase<ChatEventArgs, ChatEvent.HookDelegate>
+public class ChatEvent : HookCancelableEventBase<ChatEventArgsBase, ChatEvent.HookDelegate>
 {
     public ChatEvent()
         : base("_ZN20ServerNetworkHandler6handleERK17NetworkIdentifierRK10TextPacket") { }
@@ -19,7 +19,7 @@ public class ChatEvent : HookEventBase<ChatEventArgs, ChatEvent.HookDelegate>
 
     public override unsafe HookDelegate HookedFunc =>
         (networkHandlerPtr, networkIdentifierPtr, textPacketPtr) =>
-        {
+        { 
             try
             {
                 var networkHandler = new ServerNetworkHandler(networkHandlerPtr);
@@ -33,7 +33,7 @@ public class ChatEvent : HookEventBase<ChatEventArgs, ChatEvent.HookDelegate>
                         Original(networkHandlerPtr, networkIdentifierPtr, textPacketPtr);
                         return;
                     }
-                    var e = new ChatEventArgs
+                    var e = new ChatEventArgsBase
                     {
                         Player = player,
                         Message = NativeInterop.Utils.StringUtils.MarshalStdString((byte*)textPacketPtr + OffsetData.Current.TextPacketMessageOffsetByte)//80

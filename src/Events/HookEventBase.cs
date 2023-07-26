@@ -92,7 +92,7 @@ public abstract class HookEventBase<TEventArgs, THookDelegate> : HookBase<THookD
 }
 
 public abstract class HookCancelableEventBase<TEventArgs, THookDelegate> : HookEventBase<TEventArgs, THookDelegate>
-    where TEventArgs : CancelableEventArgs
+    where TEventArgs : CancelableEventArgsBase
     where THookDelegate : Delegate
 {
     protected HookCancelableEventBase(string symbol) : base(symbol) { }

@@ -2,7 +2,7 @@ namespace Hosihikari.Minecraft.Extension.Events;
 
 public abstract class EventArgsBase : EventArgs { }
 
-public abstract class CancelableEventArgs : EventArgsBase
+public abstract class CancelableEventArgsBase : EventArgsBase
 {
     public bool IsCanceled { get; private set; }
     private bool _complete = true;
