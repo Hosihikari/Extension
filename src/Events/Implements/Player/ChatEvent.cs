@@ -3,6 +3,7 @@
 public class ChatEventArgs : CancelableEventArgs
 {
     public required ServerPlayer Player { get; init; }
+    public required string Message { get; init; }
 }
 
 public class ChatEvent : HookEventBase<ChatEventArgs, ChatEvent.HookDelegate>
@@ -15,21 +16,32 @@ public class ChatEvent : HookEventBase<ChatEventArgs, ChatEvent.HookDelegate>
         void* networkIdentifier,
         void* textPacket
     );
+
     public override unsafe HookDelegate HookedFunc =>
-        (networkHandlerPtr, networkIdentifierPtr, textPacket) =>
+        (networkHandlerPtr, networkIdentifierPtr, textPacketPtr) =>
         {
             try
             {
                 var networkHandler = new ServerNetworkHandler(networkHandlerPtr);
                 var networkIdentifier = new NetworkIdentifier(networkIdentifierPtr);
-                var packet = new Packet(textPacket);
+                var packet = new Packet(textPacketPtr);
                 if (networkHandler.TryFetchPlayer(networkIdentifier, packet, out var player))
                 {
-                    var e = new ChatEventArgs { Player = player };
+                    var textType = *((byte*)textPacketPtr + OffsetData.Current.TextPacketTextTypeOffsetByte);//44
+                    if (textType != 1)//not a chat packet
+                    {
+                        Original(networkHandlerPtr, networkIdentifierPtr, textPacketPtr);
+                        return;
+                    }
+                    var e = new ChatEventArgs
+                    {
+                        Player = player,
+                        Message = NativeInterop.Utils.StringUtils.MarshalStdString((byte*)textPacketPtr + OffsetData.Current.TextPacketMessageOffsetByte)//80
+                    };
                     OnEventBefore(e);
                     if (e.IsCanceled)
                         return; //cancel the original
-                    Original(networkHandlerPtr, networkIdentifierPtr, textPacket);
+                    Original(networkHandlerPtr, networkIdentifierPtr, textPacketPtr);
                     OnEventAfter(e);
                 }
             }
