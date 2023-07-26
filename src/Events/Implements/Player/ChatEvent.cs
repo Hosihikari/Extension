@@ -2,7 +2,7 @@
 
 public class ChatEventArgs : CancelableEventArgsBase
 {
-    public required ServerPlayer Player { get; init; }
+    public required ServerPlayer ServerPlayer { get; init; }
     public required string Message { get; init; }
 }
 
@@ -35,7 +35,7 @@ public class ChatEvent : HookCancelableEventBase<ChatEventArgs, ChatEvent.HookDe
                     }
                     var e = new ChatEventArgs
                     {
-                        Player = player,
+                        ServerPlayer = player,
                         Message = NativeInterop.Utils.StringUtils.MarshalStdString((byte*)textPacketPtr + OffsetData.Current.TextPacketMessageOffsetByte)//80
                     };
                     OnEventBefore(e);
