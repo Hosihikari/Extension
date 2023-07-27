@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Hosihikari.Minecraft.Extension.PackHelper;
 
 namespace Hosihikari.Minecraft.Extension;
 
@@ -11,5 +12,6 @@ internal class EntryPoint
     {
         LevelTick.InitHook();
         GlobalService.Global.Init();
+        PackHelper.Main.Init();
     }
 }
