@@ -1,11 +1,20 @@
 ﻿using System.Runtime.CompilerServices;
+using Hosihikari.NativeInterop.Hook.ObjectOriented;
 
 namespace Hosihikari.Minecraft.Extension.GlobalService;
 
 public sealed class GlobalInstance<T>
     where T : class
 {
+    public GlobalInstance() { }
+
+    public GlobalInstance(Func<IHook> hook)
+    {
+        hook().Install();
+    }
+
     private T? _instance;
+    public bool IsInitialized => _instance is not null;
 
     public T Instance
     {
@@ -15,6 +24,7 @@ public sealed class GlobalInstance<T>
             {
                 throw new InvalidOperationException("Instance is not initialized.");
             }
+
             return _instance;
         }
         internal set
@@ -23,12 +33,14 @@ public sealed class GlobalInstance<T>
             {
                 _instance = value;
                 if (_onInitQueue is not null)
-                { //first init
+                {
+                    //first init
                     //call all callback and clear
                     foreach (var action in _onInitQueue!)
                     {
                         action(_instance);
                     }
+
                     _onInitQueue.Clear();
                     _onInitQueue = null;
                 }
@@ -43,11 +55,13 @@ public sealed class GlobalInstance<T>
         lock (this)
         {
             if (_onInitQueue is null)
-            { //already init, call instantly
+            {
+                //already init, call instantly
                 callback(_instance!);
             }
             else
-            { //not init, add to queue
+            {
+                //not init, add to queue
                 _onInitQueue.Enqueue(callback);
             }
         }

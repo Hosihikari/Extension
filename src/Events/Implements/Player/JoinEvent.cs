@@ -10,10 +10,8 @@ public class JoinEvent : HookEventBase<JoinEventArgs, JoinEvent.HookDelegate>
     public unsafe delegate void HookDelegate(void* serverNetworkHandler,
         void* networkIdentifier,
         void* connectionRequest, void* serverPlayerPtr);
-
     public JoinEvent() : base(
         "_ZN20ServerNetworkHandler21sendLoginMessageLocalERK17NetworkIdentifierRK17ConnectionRequestR12ServerPlayer") { }
-
     public override unsafe HookDelegate HookedFunc => (handler, identifier, request, serverPlayerPtr) =>
     {
         try

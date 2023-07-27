@@ -12,8 +12,9 @@ internal class FilePathManagerHook : HookBase<FilePathManagerHook.HookDelegate>
     public override unsafe HookDelegate HookedFunc =>
         (@this, a2, a3) =>
         {
-            Global.FilePathManager.Instance = new Core.FilePathManager(@this);
+            Log.Logger.Trace(nameof(FilePathManagerHook));
             var result = Original(@this, a2, a3);
+            Global.FilePathManager.Instance = new Core.FilePathManager(@this);
             TryUninstall();
             return result;
         };
