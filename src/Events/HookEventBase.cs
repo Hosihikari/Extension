@@ -1,4 +1,6 @@
-﻿using Hosihikari.Minecraft.Extension.Events.Implements;
+﻿using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
+using Hosihikari.Minecraft.Extension.Events.Implements;
 using Hosihikari.NativeInterop.Hook.ObjectOriented;
 
 namespace Hosihikari.Minecraft.Extension.Events;
@@ -10,8 +12,15 @@ public abstract class HookEventBase<TEventArgs, THookDelegate> : HookBase<THookD
     where TEventArgs : EventArgsBase
     where THookDelegate : Delegate
 {
-    protected HookEventBase(string symbol)
-        : base(symbol) { }
+    private readonly string _className;
+
+    protected HookEventBase(string symbol, [CallerFilePath] string sourceFile = "")
+        : base(symbol)
+    {
+        _className = Path.GetFileNameWithoutExtension(
+            sourceFile.Replace("\\", "/") /*fix if compile in windows*/
+        );
+    }
 
     private event EventHandler<TEventArgs>? InternalBefore;
     private event EventHandler<TEventArgs>? InternalAfter;
@@ -85,12 +94,35 @@ public abstract class HookEventBase<TEventArgs, THookDelegate> : HookBase<THookD
             this.Uninstall();
     }
 
-    protected virtual void OnEventBefore(TEventArgs e) => InternalBefore?.Invoke(this, e);
+    protected virtual void OnEventBefore(TEventArgs e)
+    {
+        try
+        {
+            InternalBefore?.Invoke(this, e);
+        }
+        catch (Exception ex)
+        {
+            Log.Logger.Error(_className, nameof(OnEventBefore), ex);
+        }
+    }
 
     protected virtual void OnEventAfter(TEventArgs e)
     {
-        InternalAfter?.Invoke(this, e);
-        InternalAsync?.Invoke(this, e);
+        try
+        {
+            InternalAfter?.Invoke(this, e);
+        }
+        catch (Exception ex)
+        {
+            Log.Logger.Error(_className, nameof(OnEventBefore), ex);
+        }
+        var task = InternalAsync?.Invoke(this, e);
+        //todo allow user to toggle off in config ?
+        //output error when async event throw exception
+        task?.ContinueWith(
+            t => Log.Logger.Error(_className, nameof(OnEventAfter) + "Async", t.Exception),
+            TaskContinuationOptions.OnlyOnFaulted
+        );
     }
 }
 
@@ -99,8 +131,8 @@ public abstract class HookCancelableEventBase<TEventArgs, THookDelegate>
     where TEventArgs : CancelableEventArgsBase
     where THookDelegate : Delegate
 {
-    protected HookCancelableEventBase(string symbol)
-        : base(symbol) { }
+    protected HookCancelableEventBase(string symbol, [CallerFilePath] string sourceFile = "")
+        : base(symbol, sourceFile) { }
 
     protected override void OnEventAfter(TEventArgs e)
     {
