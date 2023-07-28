@@ -12,6 +12,6 @@ internal class EntryPoint
     {
         LevelTick.InitHook();
         GlobalService.Global.Init();
-        PackHelper.Main.Init();
+        PackHelper.PackHelper.Init();
     }
 }

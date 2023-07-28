@@ -26,8 +26,24 @@ public static partial class PackHelper
         );
         if (!Directory.Exists(target))
             Directory.CreateDirectory(target);
-        var targetDir = Path.Combine(target, info.PackId.ToString());
-        LinkUtils.CreateDirectorySymlink(targetDir, packDirectory);
+        var link = Path.Combine(target, info.PackId.ToString());
+        if (Directory.Exists(link))
+        {
+            if (LinkUtils.IsLink(link))
+            {
+                var current = LinkUtils.ReadLink(link);
+                if (current == packDirectory)
+                {
+                    LinkUtils.Unlink(link);
+                }
+            }
+            else
+            {
+                Directory.Delete(link, true);
+            }
+        }
+        if (!Directory.Exists(link))
+            LinkUtils.CreateDirectorySymlink(link, packDirectory);
         if (packType is PackType.BehaviorPack)
             AddBehaviorPack(info);
         else

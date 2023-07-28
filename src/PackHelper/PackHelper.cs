@@ -16,7 +16,7 @@ public class PackAlreadyAddedException : Exception
         : base($"Pack {packId} already added.") { }
 }
 
-public static partial class Main
+public static partial class PackHelper
 {
     private static List<PackInfo>? ResourcePacks = new();
     private static List<PackInfo>? BehaviorPacks = new();
