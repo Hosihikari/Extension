@@ -9,7 +9,7 @@ public enum PackType
     Unknown = -1 //todo support auto detect ?
 }
 
-public static partial class Main
+public static partial class PackHelper
 {
     public static void AddPack(PackType packType, string packDirectory, PackInfo info)
     {
