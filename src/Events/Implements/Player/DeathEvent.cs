@@ -18,16 +18,20 @@ public class DeathEvent : HookEventBase<DeathEventArgs, DeathEvent.HookDelegate>
     public override unsafe HookDelegate HookedFunc =>
         (serverPlayerPtr, damageSource) =>
         {
+            var needCallOriginal = true;
             try
             {
                 var e = new DeathEventArgs { ServerPlayer = new ServerPlayer(serverPlayerPtr) };
                 OnEventBefore(e);
+                needCallOriginal = false;
                 Original(serverPlayerPtr, damageSource);
                 OnEventAfter(e);
             }
             catch (Exception ex)
             {
                 Log.Logger.Error(nameof(InitializedEvent), ex);
+                if (needCallOriginal)
+                    Original(serverPlayerPtr, damageSource);
             }
         };
 }
