@@ -13,7 +13,7 @@ public class LeftEvent : HookEventBase<LeftEventArgs, LeftEvent.HookDelegate>
         : base("_ZN12ServerPlayer10disconnectEv") { }
 
     public override unsafe HookDelegate HookedFunc =>
-        (serverPlayerPtr) =>
+        serverPlayerPtr =>
         {
             try
             {

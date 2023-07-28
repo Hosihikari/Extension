@@ -16,4 +16,6 @@ public static class Events
     public static LeftEvent PlayerLeft => PlayerLeftEvent.Value;
     private static readonly Lazy<RespawnEvent> PlayerRespawnEvent = new(() => new());
     public static RespawnEvent PlayerRespawn => PlayerRespawnEvent.Value;
+    private static readonly Lazy<DeathEvent> PlayerDeathEvent = new(() => new());
+    public static DeathEvent PlayerDeath => PlayerDeathEvent.Value;
 }
