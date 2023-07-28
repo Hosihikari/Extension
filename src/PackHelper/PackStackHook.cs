@@ -1,4 +1,3 @@
-using System.Text;
 using System.Text.Json.Nodes;
 using Hosihikari.Minecraft.Extension.Events.Implements;
 using Hosihikari.NativeInterop.Hook.ObjectOriented;

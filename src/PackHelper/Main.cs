@@ -1,11 +1,22 @@
-using System.Diagnostics;
 using System.Text.Json.Nodes;
 
 namespace Hosihikari.Minecraft.Extension.PackHelper;
 
-public record PackInfo(string PackId, (int, int, int) Version, string? SubPack = null);
+public record PackInfo(Guid PackId, (int, int, int) Version, string? SubPack = null);
 
-public static class Main
+public class PackAlreadyLoadedException : Exception
+{
+    public PackAlreadyLoadedException()
+        : base("Pack already loaded. Please add pack before server started.") { }
+}
+
+public class PackAlreadyAddedException : Exception
+{
+    public PackAlreadyAddedException(Guid packId)
+        : base($"Pack {packId} already added.") { }
+}
+
+public static partial class Main
 {
     private static List<PackInfo>? ResourcePacks = new();
     private static List<PackInfo>? BehaviorPacks = new();
@@ -13,14 +24,18 @@ public static class Main
     public static void AddResourcePack(PackInfo packInfo)
     {
         if (ResourcePacks is null)
-            throw new NullReferenceException(nameof(ResourcePacks));
+            throw new PackAlreadyLoadedException();
+        if (ResourcePacks.Any(x => x.PackId == packInfo.PackId))
+            throw new PackAlreadyAddedException(packInfo.PackId);
         ResourcePacks.Add(packInfo);
     }
 
     public static void AddBehaviorPack(PackInfo packInfo)
     {
         if (BehaviorPacks is null)
-            throw new NullReferenceException(nameof(BehaviorPacks));
+            throw new PackAlreadyLoadedException();
+        if (BehaviorPacks.Any(x => x.PackId == packInfo.PackId))
+            throw new PackAlreadyAddedException(packInfo.PackId);
         BehaviorPacks.Add(packInfo);
     }
 
@@ -41,36 +56,30 @@ public static class Main
      */
     public static void ProcessWorldPacksJson(JsonArray array)
     {
-        // add customize pack
-        if (ResourcePacks is not null) //first call from resource pack
+        void Process(List<PackInfo> target)
         {
-            foreach (var (id, (a, b, c), subPack) in ResourcePacks)
+            foreach (var (id, (a, b, c), subPack) in target)
             {
                 var pack = new JsonObject
                 {
-                    ["pack_id"] = id,
+                    ["pack_id"] = id.ToString(),
                     ["version"] = new JsonArray { a, b, c }
                 };
                 if (subPack is not null)
                     pack.Add("subpack", subPack);
                 array.Add(pack);
             }
+        }
 
+        // add customize pack
+        if (ResourcePacks is not null) //first call from resource pack
+        {
+            Process(ResourcePacks);
             ResourcePacks = null;
         }
         else if (BehaviorPacks is not null) //second call
         {
-            foreach (var (id, (a, b, c), subPack) in BehaviorPacks)
-            {
-                var pack = new JsonObject
-                {
-                    ["pack_id"] = id,
-                    ["version"] = new JsonArray { a, b, c }
-                };
-                if (subPack is not null)
-                    pack.Add("subpack", subPack);
-                array.Add(pack);
-            }
+            Process(BehaviorPacks);
             BehaviorPacks = null;
             //no longer need, uninstall hook
             _hook.Uninstall();
