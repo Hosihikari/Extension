@@ -9,24 +9,22 @@ public class LeftEvent : HookEventBase<LeftEventArgs, LeftEvent.HookDelegate>
 {
     public unsafe delegate void HookDelegate(void* serverPlayerPtr);
 
-    public LeftEvent() : base(
-        "_ZN12ServerPlayer10disconnectEv") { }
+    public LeftEvent()
+        : base("_ZN12ServerPlayer10disconnectEv") { }
 
-    public override unsafe HookDelegate HookedFunc => (serverPlayerPtr) =>
-    {
-        try
+    public override unsafe HookDelegate HookedFunc =>
+        (serverPlayerPtr) =>
         {
-            var e = new LeftEventArgs()
+            try
             {
-                ServerPlayer = new ServerPlayer(serverPlayerPtr)
-            };
-            OnEventBefore(e);
-            Original(serverPlayerPtr);
-            OnEventAfter(e);
-        }
-        catch (Exception ex)
-        {
-            Log.Logger.Error(nameof(InitializedEvent), ex);
-        }
-    };
+                var e = new LeftEventArgs { ServerPlayer = new ServerPlayer(serverPlayerPtr) };
+                OnEventBefore(e);
+                Original(serverPlayerPtr);
+                OnEventAfter(e);
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(nameof(InitializedEvent), ex);
+            }
+        };
 }

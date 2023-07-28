@@ -9,23 +9,25 @@ public class InitializedEvent : HookEventBase<InitializedEventArgs, InitializedE
 {
     public unsafe delegate void HookDelegate(void* serverPlayerPtr);
 
-    public InitializedEvent() : base("_ZN12ServerPlayer27setLocalPlayerAsInitializedEv") { }
+    public InitializedEvent()
+        : base("_ZN12ServerPlayer27setLocalPlayerAsInitializedEv") { }
 
-    public override unsafe HookDelegate HookedFunc => (serverPlayerPtr) =>
-    {
-        try
+    public override unsafe HookDelegate HookedFunc =>
+        (serverPlayerPtr) =>
         {
-            var e = new InitializedEventArgs()
+            try
             {
-                ServerPlayer = new ServerPlayer(serverPlayerPtr)
-            }; 
-            OnEventBefore(e);
-            Original(serverPlayerPtr);
-            OnEventAfter(e);
-        }
-        catch (Exception ex)
-        {
-            Log.Logger.Error(nameof(InitializedEvent), ex);
-        }
-    };
+                var e = new InitializedEventArgs
+                {
+                    ServerPlayer = new ServerPlayer(serverPlayerPtr)
+                };
+                OnEventBefore(e);
+                Original(serverPlayerPtr);
+                OnEventAfter(e);
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(nameof(InitializedEvent), ex);
+            }
+        };
 }
