@@ -102,7 +102,7 @@ public abstract class HookEventBase<TEventArgs, THookDelegate> : HookBase<THookD
         }
         catch (Exception ex)
         {
-            Log.Logger.Error(_className, nameof(OnEventBefore), ex);
+            Log.Logger.Error(_className + "::" + nameof(OnEventBefore), ex);
         }
     }
 
@@ -114,13 +114,13 @@ public abstract class HookEventBase<TEventArgs, THookDelegate> : HookBase<THookD
         }
         catch (Exception ex)
         {
-            Log.Logger.Error(_className, nameof(OnEventBefore), ex);
+            Log.Logger.Error(_className + "::" + nameof(OnEventBefore), ex);
         }
         var task = InternalAsync?.Invoke(this, e);
         //todo allow user to toggle off in config ?
         //output error when async event throw exception
         task?.ContinueWith(
-            t => Log.Logger.Error(_className, nameof(OnEventAfter) + "Async", t.Exception),
+            t => Log.Logger.Error(_className + "::" + nameof(OnEventAfter) + "Async", t.Exception),
             TaskContinuationOptions.OnlyOnFaulted
         );
     }

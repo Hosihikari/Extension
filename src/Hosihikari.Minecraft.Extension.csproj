@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
@@ -8,12 +8,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Hosihikari.Logging" Version="1.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Reference Include="Hosihikari.FastElfQuery">
             <HintPath>..\..\FastElfQuery\src\bin\Release\net7.0\Hosihikari.FastElfQuery.dll</HintPath>
-        </Reference>
-        <Reference Include="Hosihikari.Logging">
-          <HintPath>..\..\Logging\src\bin\Release\net7.0\Hosihikari.Logging.dll</HintPath>
-        </Reference>
+        </Reference> 
         <Reference Include="Hosihikari.Minecraft">
           <HintPath>..\..\Minecraft\src\bin\Release\net7.0\Hosihikari.Minecraft.dll</HintPath>
         </Reference>
