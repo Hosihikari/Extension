@@ -82,7 +82,7 @@ public static partial class PackHelper
             Process(BehaviorPacks);
             BehaviorPacks = null;
             //no longer need, uninstall hook
-            _hook.Uninstall();
+            LevelTick.PostTick(_hook.Uninstall);
         }
     }
 }
