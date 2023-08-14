@@ -18,7 +18,7 @@ public static class LevelTick
         {
             if (
                 NativeInterop.Hook.NativeFunc.Hook(
-                    SymbolHelper.DlsymPointer("_ZN5Level4tickEv"),
+                    SymbolHelper.DlsymPointer("_ZN11GameSession4tickEv"),
                     (delegate* unmanaged<void*, void>)&LevelTickHook,
                     out var original,
                     out _
