@@ -13,7 +13,7 @@ public static class Global
     public static GlobalInstance<MinecraftCommands> MinecraftCommands { get; } =
         new(() => new MinecraftCommandsHook());
 
-    public static GlobalInstance<DbStorage> DbStorage { get; } = new();
+    public static GlobalInstance<DBStorage> DbStorage { get; } = new();
     public static GlobalInstance<LevelStorage> LevelStorage { get; } = new();
 
     public static GlobalInstance<RakNetServerLocator> RakNetServerLocator { get; } =

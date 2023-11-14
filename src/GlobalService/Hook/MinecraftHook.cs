@@ -1,19 +1,20 @@
 using Hosihikari.NativeInterop.Hook.ObjectOriented;
+using Hosihikari.NativeInterop.Unmanaged;
 
 namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
 
 internal class MinecraftHook : HookBase<MinecraftHook.HookDelegate>
 {
-    internal unsafe delegate void HookDelegate(void* @this, void* a2);
+    internal unsafe delegate void HookDelegate(Pointer<Minecraft> @this);
 
     public MinecraftHook()
-        : base("_ZN9Minecraft21initAsDedicatedServerEv") { }
+        : base(Minecraft.Original.InitAsDedicatedServer) { }
 
     public override unsafe HookDelegate HookedFunc =>
-        (@this, a2) =>
+        @this =>
         {
             Log.Logger.Trace(nameof(MinecraftHook));
-            Original(@this, a2);
+            Original(@this);
             Global.Minecraft.Instance = new Minecraft(@this);
             TryUninstall();
         };

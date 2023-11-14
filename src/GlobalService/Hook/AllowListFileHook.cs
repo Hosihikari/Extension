@@ -1,13 +1,14 @@
 using Hosihikari.NativeInterop.Hook.ObjectOriented;
+using Hosihikari.NativeInterop.Unmanaged;
 
 namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
 
 internal class AllowListFileHook : HookBase<AllowListFileHook.HookDelegate>
 {
-    internal unsafe delegate void* HookDelegate(void* @this, void* a2);
+    internal unsafe delegate Pointer<AllowListFile> HookDelegate(Pointer<AllowListFile> @this, void* a2);
 
     public AllowListFileHook()
-        : base("_ZN13AllowListFileC2ERKN4Core4PathE") { }
+        : base(AllowListFile.Original.Constructor_AllowListFile) { }
 
     public override unsafe HookDelegate HookedFunc =>
         (@this, a2) =>

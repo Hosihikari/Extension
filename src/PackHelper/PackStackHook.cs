@@ -1,7 +1,7 @@
 using System.Text.Json.Nodes;
 using Hosihikari.Minecraft.Extension.Events.Implements;
 using Hosihikari.NativeInterop.Hook.ObjectOriented;
-using Hosihikari.NativeInterop.NativeTypes;
+using Hosihikari.NativeInterop.Unmanaged.STL;
 using Hosihikari.NativeInterop.Utils;
 
 namespace Hosihikari.Minecraft.Extension.PackHelper;
@@ -11,9 +11,7 @@ internal class PackStackHook : HookBase<PackStackHook.HookDelegate>
     internal unsafe delegate void* HookDelegate(void* @this, void* a2, void* a3);
 
     public PackStackHook(Action<JsonArray> proceedFunc)
-        : base(
-            "_ZN17ResourcePackStack11deserializeERSiRKN3gsl8not_nullIN7Bedrock15NonOwnerPointerIK23IResourcePackRepositoryEEEE"
-        )
+        : base(ResourcePackStack.Original.Deserialize)
     {
         _proceedFunc = proceedFunc;
     }

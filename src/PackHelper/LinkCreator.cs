@@ -3,6 +3,7 @@ using Hosihikari.NativeInterop.Utils;
 
 namespace Hosihikari.Minecraft.Extension.PackHelper;
 
+#if LINUX
 public enum PackType
 {
     ResourcePack,
@@ -16,7 +17,7 @@ public static partial class PackHelper
     {
         if (!Directory.Exists(packDirectory))
             throw new DirectoryNotFoundException($"packDirectory {packDirectory} not found");
-        var target = Path.Combine(
+        var target = System.IO.Path.Combine(
             Environment.CurrentDirectory,
             packType switch
             {
@@ -27,7 +28,7 @@ public static partial class PackHelper
         );
         if (!Directory.Exists(target))
             Directory.CreateDirectory(target);
-        var link = Path.Combine(target, info.PackId.ToString());
+        var link = System.IO.Path.Combine(target, info.PackId.ToString());
         if (Directory.Exists(link))
         {
             if (LinkUtils.IsLink(link))
@@ -63,15 +64,15 @@ public static partial class PackHelper
                         var files = Directory.GetFiles(sourceFolder);
                         foreach (var file in files)
                         {
-                            var name = Path.GetFileName(file);
-                            var dest = Path.Combine(destFolder, name);
+                            var name = System.IO.Path.GetFileName(file);
+                            var dest = System.IO.Path.Combine(destFolder, name);
                             File.Copy(file, dest);
                         }
                         var folders = Directory.GetDirectories(sourceFolder);
                         foreach (var folder in folders)
                         {
-                            var name = Path.GetFileName(folder);
-                            var dest = Path.Combine(destFolder, name);
+                            var name = System.IO.Path.GetFileName(folder);
+                            var dest = System.IO.Path.Combine(destFolder, name);
                             CopyFolder(folder, dest);
                         }
                     }
@@ -84,3 +85,4 @@ public static partial class PackHelper
             AddResourcePack(info);
     }
 }
+#endif

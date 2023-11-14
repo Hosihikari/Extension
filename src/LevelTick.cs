@@ -17,8 +17,8 @@ public static class LevelTick
         unsafe
         {
             if (
-                NativeInterop.Hook.NativeFunc.Hook(
-                    SymbolHelper.DlsymPointer("_ZN11GameSession4tickEv"),
+                NativeInterop.Hook.Function.Hook(
+                    SymbolHelper.DlsymPointer(SymbolHelper.QuerySymbol(GameSession.Original.Tick)),
                     (delegate* unmanaged<void*, void>)&LevelTickHook,
                     out var original,
                     out _

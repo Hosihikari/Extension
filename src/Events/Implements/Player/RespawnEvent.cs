@@ -1,6 +1,6 @@
 ﻿using Hosihikari.Minecraft.Extension.Events;
 using Hosihikari.Minecraft;
-using Hosihikari.NativeInterop.Hook.ObjectOriented;
+using Hosihikari.NativeInterop.Unmanaged;
 
 public class RespawnEventArgs : EventArgsBase
 {
@@ -11,17 +11,17 @@ namespace Hosihikari.Minecraft.Extension.Events.Implements.Player
 {
     public class RespawnEvent : HookEventBase<RespawnEventArgs, RespawnEvent.HookDelegate>
     {
-        public unsafe delegate void HookDelegate(void* serverPlayerPtr);
+        public unsafe delegate void HookDelegate(Pointer<ServerPlayer> serverPlayerPtr);
 
         public RespawnEvent()
-            : base("?respawn@ServerPlayer@@UEAAXXZ") { }
+            : base(ServerPlayer.Original.Respawn) { }
 
         public override unsafe HookDelegate HookedFunc =>
             serverPlayerPtr =>
             {
                 try
                 { //Actor::getIsExperienceDropEnabled
-                    var e = new RespawnEventArgs { ServerPlayer = new ServerPlayer(serverPlayerPtr) };
+                    var e = new RespawnEventArgs { ServerPlayer = serverPlayerPtr.Target };
                     OnEventBefore(e);
                     Original(serverPlayerPtr);
                     OnEventAfter(e);

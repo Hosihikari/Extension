@@ -8,16 +8,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Hosihikari.Logging" Version="1.0.0" />
+      <PackageReference Include="Hosihikari.Logging" Version="1.0.1" />
       <PackageReference Include="Hosihikari.FastElfQuery" Version="1.0.0" />
+      <PackageReference Include="Hosihikari.NativeInterop" Version="1.0.5" />
     </ItemGroup>
 
     <ItemGroup>
         <Reference Include="Hosihikari.Minecraft">
           <HintPath>..\..\Minecraft\src\bin\Release\net7.0\Hosihikari.Minecraft.dll</HintPath>
-        </Reference>
-        <Reference Include="Hosihikari.NativeInterop">
-            <HintPath>..\..\NativeInterop\src\bin\Release\net7.0\Hosihikari.NativeInterop.dll</HintPath>
         </Reference> 
     </ItemGroup>
 

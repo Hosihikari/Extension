@@ -1,4 +1,6 @@
-﻿namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
+﻿using Hosihikari.NativeInterop.Unmanaged;
+
+namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
 
 public class DeathEventArgs : EventArgsBase
 {
@@ -10,10 +12,10 @@ public class DeathEventArgs : EventArgsBase
 //Actor::getIsExperienceDropEnabled
 public class DeathEvent : HookEventBase<DeathEventArgs, DeathEvent.HookDelegate>
 {
-    public unsafe delegate void HookDelegate(void* serverPlayerPtr, void* damageSource);
+    public unsafe delegate void HookDelegate(Pointer<ServerPlayer> serverPlayerPtr, Reference<ActorDamageSource> damageSource);
 
     public DeathEvent()
-        : base("?die@ServerPlayer@@UEAAXAEBVActorDamageSource@@@Z") { }
+        : base(ServerPlayer.Original.Die) { }
 
     public override unsafe HookDelegate HookedFunc =>
         (serverPlayerPtr, damageSource) =>
@@ -21,7 +23,7 @@ public class DeathEvent : HookEventBase<DeathEventArgs, DeathEvent.HookDelegate>
             var needCallOriginal = true;
             try
             {
-                var e = new DeathEventArgs { ServerPlayer = new ServerPlayer(serverPlayerPtr) };
+                var e = new DeathEventArgs { ServerPlayer = serverPlayerPtr.Target };
                 OnEventBefore(e);
                 needCallOriginal = false;
                 Original(serverPlayerPtr, damageSource);

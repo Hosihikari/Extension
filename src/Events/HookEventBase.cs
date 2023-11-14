@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
 using Hosihikari.Minecraft.Extension.Events.Implements;
 using Hosihikari.NativeInterop.Hook.ObjectOriented;
 
@@ -17,7 +16,15 @@ public abstract class HookEventBase<TEventArgs, THookDelegate> : HookBase<THookD
     protected HookEventBase(string symbol, [CallerFilePath] string sourceFile = "")
         : base(symbol)
     {
-        _className = Path.GetFileNameWithoutExtension(
+        _className = System.IO.Path.GetFileNameWithoutExtension(
+            sourceFile.Replace("\\", "/") /*fix if compile in windows*/
+        );
+    }
+    
+    protected HookEventBase(Delegate func, [CallerFilePath] string sourceFile = "")
+        : base(func)
+    {
+        _className = System.IO.Path.GetFileNameWithoutExtension(
             sourceFile.Replace("\\", "/") /*fix if compile in windows*/
         );
     }
@@ -133,6 +140,9 @@ public abstract class HookCancelableEventBase<TEventArgs, THookDelegate>
 {
     protected HookCancelableEventBase(string symbol, [CallerFilePath] string sourceFile = "")
         : base(symbol, sourceFile) { }
+
+    protected HookCancelableEventBase(Delegate func, [CallerFilePath] string sourceFile = "")
+        : base(func, sourceFile) { }
 
     protected override void OnEventAfter(TEventArgs e)
     {

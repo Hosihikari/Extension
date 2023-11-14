@@ -1,3 +1,5 @@
+using Hosihikari.NativeInterop.Unmanaged;
+
 namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
 
 public class LeftEventArgs : EventArgsBase
@@ -7,17 +9,17 @@ public class LeftEventArgs : EventArgsBase
 
 public class LeftEvent : HookEventBase<LeftEventArgs, LeftEvent.HookDelegate>
 {
-    public unsafe delegate void HookDelegate(void* serverPlayerPtr);
+    public unsafe delegate void HookDelegate(Pointer<ServerPlayer> serverPlayerPtr);
 
     public LeftEvent()
-        : base("_ZN12ServerPlayer10disconnectEv") { }
+        : base(ServerPlayer.Original.Disconnect) { }
 
     public override unsafe HookDelegate HookedFunc =>
         serverPlayerPtr =>
         {
             try
             {
-                var e = new LeftEventArgs { ServerPlayer = new ServerPlayer(serverPlayerPtr) };
+                var e = new LeftEventArgs { ServerPlayer = serverPlayerPtr.Target };
                 OnEventBefore(e);
                 Original(serverPlayerPtr);
                 OnEventAfter(e);
