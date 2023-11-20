@@ -1,6 +1,4 @@
-﻿using Hosihikari.Logging;
-
-namespace Hosihikari.Minecraft.Extension.GlobalService;
+﻿namespace Hosihikari.Minecraft.Extension.GlobalService;
 
 public static class Log
 {

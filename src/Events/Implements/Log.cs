@@ -1,6 +1,4 @@
-﻿using Hosihikari.Logging;
-
-namespace Hosihikari.Minecraft.Extension.Events.Implements;
+﻿namespace Hosihikari.Minecraft.Extension.Events.Implements;
 
 public class Log
 {
