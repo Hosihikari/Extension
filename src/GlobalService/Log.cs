@@ -1,12 +1,13 @@
-﻿namespace Hosihikari.Minecraft.Extension.GlobalService;
+﻿using Microsoft.Extensions.Logging;
+
+namespace Hosihikari.Minecraft.Extension.GlobalService;
 
 public static class Log
 {
-    private static readonly Lazy<Logger> _logger = new(() =>
+    private static readonly Lazy<ILogger> s_logger = new(() =>
     {
-        var instance = new Logger(nameof(GlobalService));
-        instance.SetupConsole();
-        return instance;
+        ILoggerFactory factory = LoggerFactory.Create(builder => builder.AddConsole());
+        return factory.CreateLogger(nameof(GlobalService));
     });
-    public static Logger Logger => _logger.Value;
+    public static ILogger Logger => s_logger.Value;
 }

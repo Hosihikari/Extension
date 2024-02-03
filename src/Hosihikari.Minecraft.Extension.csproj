@@ -9,7 +9,8 @@
 
     <ItemGroup>
       <PackageReference Include="Hosihikari.FastElfQuery" Version="1.0.0" />
-      <PackageReference Include="Hosihikari.NativeInterop" Version="1.0.5" />
+      <PackageReference Include="Hosihikari.Minecraft.Foundation" Version="1.0.0" />
+      <PackageReference Include="Hosihikari.NativeInterop" Version="1.0.7" />
       <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
     </ItemGroup>
 

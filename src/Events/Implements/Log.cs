@@ -1,12 +1,13 @@
-﻿namespace Hosihikari.Minecraft.Extension.Events.Implements;
+﻿using Microsoft.Extensions.Logging;
+
+namespace Hosihikari.Minecraft.Extension.Events.Implements;
 
 public class Log
 {
-    private static readonly Lazy<Logger> _logger = new(() =>
+    private static readonly Lazy<ILogger> s_logger = new(() =>
     {
-        var instance = new Logger(nameof(Events));
-        instance.SetupConsole();
-        return instance;
+        ILoggerFactory factory = LoggerFactory.Create(builder => builder.AddConsole());
+        return factory.CreateLogger(nameof(Events));
     });
-    public static Logger Logger => _logger.Value;
+    public static ILogger Logger => s_logger.Value;
 }
