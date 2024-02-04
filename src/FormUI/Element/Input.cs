@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Hosihikari.FormUI;
+namespace Hosihikari.Minecraft.Extension.FormUI.Element;
 
-public class Input : CustomFormElement
+public sealed class Input(string name) : CustomFormElement(name)
 {
     [JsonIgnore]
     public override ElementType FormElementType => ElementType.Input;
@@ -13,17 +13,11 @@ public class Input : CustomFormElement
         return JsonSerializer.Serialize(this);
     }
 
-    private string title = string.Empty;
+    private string _title = string.Empty;
 
-#nullable enable
-    private string? placeHolder;
+    private string? _placeHolder;
 
-    private string? @default;
-#nullable disable
-
-    public Input(string name) : base(name)
-    {
-    }
+    private string? _default;
 
     //[JsonPropertyName("type")]
     //public string Type { get; private set; } = "input";
@@ -31,24 +25,23 @@ public class Input : CustomFormElement
     [JsonPropertyName("text")]
     public string Title
     {
-        get => title;
+        get => _title;
         set
         {
-            title = value;
+            _title = value;
             OnPropertyChanged(nameof(Title));
         }
     }
 
 
-#nullable enable
     [JsonPropertyName("placeholder")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? PlaceHolder
     {
-        get => placeHolder;
+        get => _placeHolder;
         set
         {
-            placeHolder = value;
+            _placeHolder = value;
             OnPropertyChanged(nameof(PlaceHolder));
         }
     }
@@ -57,12 +50,11 @@ public class Input : CustomFormElement
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Default
     {
-        get => @default;
+        get => _default;
         set
         {
-            @default = value;
+            _default = value;
             OnPropertyChanged(nameof(Default));
         }
     }
-#nullable disable
 }

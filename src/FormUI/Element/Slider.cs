@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Hosihikari.FormUI;
+namespace Hosihikari.Minecraft.Extension.FormUI.Element;
 
-public class Slider : CustomFormElement
+public sealed class Slider(string name) : CustomFormElement(name)
 {
 
     [JsonIgnore]
@@ -11,19 +11,15 @@ public class Slider : CustomFormElement
 
     protected override string Serialize() => JsonSerializer.Serialize(this);
 
-    private string title = string.Empty;
+    private string _title = string.Empty;
 
-    private double min = 0;
+    private double _min;
 
-    private double max = 0;
+    private double _max;
 
-    private double step = 0;
+    private double _step;
 
-    private double @default = 0;
-
-    public Slider(string name) : base(name)
-    {
-    }
+    private double _default;
 
     //[JsonPropertyName("type")]
     //public string Type { get; private set; } = "slider";
@@ -31,10 +27,10 @@ public class Slider : CustomFormElement
     [JsonPropertyName("text")]
     public string Title
     {
-        get => title;
+        get => _title;
         set
         {
-            title = value;
+            _title = value;
             OnPropertyChanged(nameof(Title));
         }
     }
@@ -42,12 +38,12 @@ public class Slider : CustomFormElement
     [JsonPropertyName("min")]
     public double Min
     {
-        get => min;
+        get => _min;
         set
         {
-            min = value;
-            if (min > max)
-                (min, max) = (max, min);
+            _min = value;
+            if (_min > _max)
+                (_min, _max) = (_max, _min);
             OnPropertyChanged(nameof(Min));
         }
     }
@@ -55,12 +51,12 @@ public class Slider : CustomFormElement
     [JsonPropertyName("max")]
     public double Max
     {
-        get => max;
+        get => _max;
         set
         {
-            max = value;
-            if (min > max)
-                (min, max) = (max, min);
+            _max = value;
+            if (_min > _max)
+                (_min, _max) = (_max, _min);
             OnPropertyChanged(nameof(Max));
         }
     }
@@ -68,10 +64,10 @@ public class Slider : CustomFormElement
     [JsonPropertyName("step")]
     public double Step
     {
-        get => step;
+        get => _step;
         set
         {
-            step = value > 0 ? value : max - min;
+            _step = value > 0 ? value : _max - _min;
             OnPropertyChanged(nameof(Step));
         }
     }
@@ -79,11 +75,11 @@ public class Slider : CustomFormElement
     [JsonPropertyName("default")]
     public double Default
     {
-        get => @default;
+        get => _default;
         set
         {
-            @default = value;
-            @default = Math.Max(Math.Min(@default, max), min);
+            _default = value;
+            _default = Math.Max(Math.Min(_default, _max), _min);
             OnPropertyChanged(nameof(Default));
         }
     }

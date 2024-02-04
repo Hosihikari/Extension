@@ -1,99 +1,97 @@
 ﻿using System.Collections;
 using System.Text.Json.Serialization;
 
-namespace Hosihikari.FormUI;
+namespace Hosihikari.Minecraft.Extension.FormUI;
 
-public class PropertyChangedEventArgs : EventArgs
+public sealed class PropertyChangedEventArgs : EventArgs
 {
-    private readonly string propertyName;
-
-    public string PropertyName => propertyName;
-
-    public PropertyChangedEventArgs(string propertyName)
+    internal PropertyChangedEventArgs(string propertyName)
     {
-        this.propertyName = propertyName;
+        PropertyName = propertyName;
     }
+
+    public string PropertyName { get; }
 }
 
-public class FormElementCollection<T> : ICollection<T>, IList<T>
+public sealed class FormElementCollection<T> : IList<T>
 {
-    private readonly List<T> list = new();
+    private readonly List<T> _list = [];
 
-    public int Count => list.Count;
+    public int Count => _list.Count;
 
     public bool IsReadOnly => false;
 
     public T this[int index]
     {
-        get => list[index];
+        get => _list[index];
         set
         {
-            list[index] = value;
+            _list[index] = value;
             Changed?.Invoke(this, EventArgs.Empty);
         }
     }
 
     public void Add(T item)
     {
-        list.Add(item);
+        _list.Add(item);
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
     public void Clear()
     {
-        list.Clear();
+        _list.Clear();
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
-    public bool Contains(T item) => list.Contains(item);
+    public bool Contains(T item) => _list.Contains(item);
 
-    public void CopyTo(T[] array, int arrayIndex) => list.CopyTo(array, arrayIndex);
+    public void CopyTo(T[] array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
 
-    public IEnumerator<T> GetEnumerator() => list.GetEnumerator();
+    public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
 
     public bool Remove(T item)
     {
-        var ret = list.Remove(item);
+        bool ret = _list.Remove(item);
         Changed?.Invoke(this, EventArgs.Empty);
         return ret;
     }
 
-    IEnumerator IEnumerable.GetEnumerator() => list.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator() => _list.GetEnumerator();
 
-    public int IndexOf(T item) => list.IndexOf(item);
+    public int IndexOf(T item) => _list.IndexOf(item);
 
     public void Insert(int index, T item)
     {
-        list.Insert(index, item);
+        _list.Insert(index, item);
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
     public void RemoveAt(int index)
     {
-        list.RemoveAt(index);
+        _list.RemoveAt(index);
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
-#nullable enable
     public event EventHandler<EventArgs>? Changed;
-#nullable disable
 }
 
 public abstract class FormBase
 {
-    private string serializedData;
+    private string _serializedData = string.Empty;
 
     [JsonIgnore]
     public string SerializedData
     {
         get
         {
-            if (IsSerialized is false)
+            if (IsSerialized)
             {
-                serializedData = Serialize();
-                IsSerialized = true;
+                return _serializedData;
             }
-            return serializedData;
+
+            _serializedData = Serialize();
+            IsSerialized = true;
+            return _serializedData;
         }
     }
 
@@ -102,26 +100,27 @@ public abstract class FormBase
 
     protected abstract string Serialize();
 
-#nullable enable
     public event EventHandler<PropertyChangedEventArgs>? PropertyChanged;
 
-    private bool onHandlingPropertyChanged = false;
+    private bool _onHandlingPropertyChanged;
     public void OnPropertyChanged(string propertyName = "")
     {
-        if (onHandlingPropertyChanged is false)
+        if (_onHandlingPropertyChanged)
         {
-            onHandlingPropertyChanged = true;
-
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-            onHandlingPropertyChanged = false;
+            return;
         }
+
+        _onHandlingPropertyChanged = true;
+
+        PropertyChanged?.Invoke(this, new(propertyName));
+
+        _onHandlingPropertyChanged = false;
 
     }
 
     public FormBase()
     {
-        PropertyChanged += (obj, args) =>
+        PropertyChanged += (_, _) =>
         {
             IsSerialized = false;
         };

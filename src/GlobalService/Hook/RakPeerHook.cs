@@ -2,22 +2,19 @@ using static Hosihikari.Minecraft.RakNet;
 using Hosihikari.NativeInterop.Hook.ObjectOriented;
 using Hosihikari.NativeInterop;
 using Hosihikari.NativeInterop.Unmanaged;
+using Microsoft.Extensions.Logging;
 
 namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
 
-internal class RakPeerHook : HookBase<RakPeerHook.HookDelegate>
+internal sealed class RakPeerHook() : HookBase<RakPeerHook.HookDelegate>(RakPeer.Original.Constructor_RakPeer)
 {
-    internal unsafe delegate Pointer<RakPeer> HookDelegate(Pointer<RakPeer> @this);
+    internal delegate Pointer<RakPeer> HookDelegate(Pointer<RakPeer> @this);
 
-    public RakPeerHook()
-        : base(RakPeer.Original.Constructor_RakPeer)
-    { }
-
-    public override unsafe HookDelegate HookedFunc =>
+    public override HookDelegate HookedFunc =>
         @this =>
         {
-            Log.Logger.Trace(nameof(RakPeerHook));
-            var result = Original(@this);
+            Log.Logger.LogTrace("In {ModuleName}", nameof(RakPeerHook));
+            Pointer<RakPeer> result = Original(@this);
             Global.RakPeer.Instance = @this.Target;
             TryUninstall();
             return result;

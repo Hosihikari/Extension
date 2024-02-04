@@ -1,26 +1,25 @@
-﻿using Hosihikari.Minecraft;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Hosihikari.FormUI;
+namespace Hosihikari.Minecraft.Extension.FormUI;
 
-public class ModalForm : FormBase
+public sealed class ModalForm : FormBase
 {
-    private string title = string.Empty;
+    private string _title = string.Empty;
 
-    private string content = string.Empty;
+    private string _content = string.Empty;
 
-    private string confirmButton = string.Empty;
+    private string _confirmButton = string.Empty;
 
-    private string cancelButton = string.Empty;
+    private string _cancelButton = string.Empty;
 
     [JsonPropertyName("title")]
     public string Title
     {
-        get => title;
+        get => _title;
         set
         {
-            title = value;
+            _title = value;
             OnPropertyChanged(nameof(Title));
         }
     }
@@ -28,10 +27,10 @@ public class ModalForm : FormBase
     [JsonPropertyName("content")]
     public string Content
     {
-        get => content;
+        get => _content;
         set
         {
-            content = value;
+            _content = value;
             OnPropertyChanged(nameof(Content));
         }
     }
@@ -39,10 +38,10 @@ public class ModalForm : FormBase
     [JsonPropertyName("button1")]
     public string ConfirmButton
     {
-        get => confirmButton;
+        get => _confirmButton;
         set
         {
-            confirmButton = value;
+            _confirmButton = value;
             OnPropertyChanged(nameof(ConfirmButton));
         }
     }
@@ -50,10 +49,10 @@ public class ModalForm : FormBase
     [JsonPropertyName("button2")]
     public string CancelButton
     {
-        get => cancelButton;
+        get => _cancelButton;
         set
         {
-            cancelButton = value;
+            _cancelButton = value;
             OnPropertyChanged(nameof(CancelButton));
         }
     }
@@ -67,9 +66,7 @@ public class ModalForm : FormBase
     [Flags]
     public enum Chosen { Cancel, Confirm }
 
-#nullable enable
     public event Action<Player, Chosen>? Callback;
-#nullable disable
 
     internal void InvokeCallback(Player player, Chosen chosen)
     => Callback?.Invoke(player, chosen);

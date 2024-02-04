@@ -1,29 +1,31 @@
 ﻿using Hosihikari.NativeInterop.Unmanaged;
+using Microsoft.Extensions.Logging;
 
 namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
 
-public class DeathEventArgs : EventArgsBase
+public sealed class DeathEventArgs : EventArgsBase
 {
-    public required ServerPlayer ServerPlayer { get; init; }
+    internal DeathEventArgs(ServerPlayer serverPlayer)
+    {
+        ServerPlayer = serverPlayer;
+    }
+    public ServerPlayer ServerPlayer { get; }
 }
 
 //todo allow to cancel
 //the effect is not prevent death, but keep inventory and exp
 //Actor::getIsExperienceDropEnabled
-public class DeathEvent : HookEventBase<DeathEventArgs, DeathEvent.HookDelegate>
+public sealed class DeathEvent() : HookEventBase<DeathEventArgs, DeathEvent.HookDelegate>(ServerPlayer.Original.Die)
 {
-    public unsafe delegate void HookDelegate(Pointer<ServerPlayer> serverPlayerPtr, Reference<ActorDamageSource> damageSource);
+    public delegate void HookDelegate(Pointer<ServerPlayer> serverPlayerPtr, Reference<ActorDamageSource> damageSource);
 
-    public DeathEvent()
-        : base(ServerPlayer.Original.Die) { }
-
-    public override unsafe HookDelegate HookedFunc =>
+    public override HookDelegate HookedFunc =>
         (serverPlayerPtr, damageSource) =>
         {
-            var needCallOriginal = true;
+            bool needCallOriginal = true;
             try
             {
-                var e = new DeathEventArgs { ServerPlayer = serverPlayerPtr.Target };
+                DeathEventArgs e = new(serverPlayerPtr.Target);
                 OnEventBefore(e);
                 needCallOriginal = false;
                 Original(serverPlayerPtr, damageSource);
@@ -31,7 +33,7 @@ public class DeathEvent : HookEventBase<DeathEventArgs, DeathEvent.HookDelegate>
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(nameof(InitializedEvent), ex);
+                Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}", nameof(DeathEvent), ex);
                 if (needCallOriginal)
                     Original(serverPlayerPtr, damageSource);
             }

@@ -1,11 +1,13 @@
 using Hosihikari.NativeInterop.Hook.ObjectOriented;
 using Hosihikari.NativeInterop.Unmanaged;
+using Microsoft.Extensions.Logging;
 
 namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
 
-internal class MinecraftCommandsHook : HookBase<MinecraftCommandsHook.HookDelegate>
+internal sealed class MinecraftCommandsHook()
+    : HookBase<MinecraftCommandsHook.HookDelegate>(MinecraftCommands.Original.InitCoreEnums)
 {
-    internal unsafe delegate void HookDelegate(
+    internal delegate void HookDelegate(
         Pointer<MinecraftCommands> @this,
         Reference<ItemRegistryRef> a1,
         Reference<IWorldRegistriesProvider> a2,
@@ -13,13 +15,10 @@ internal class MinecraftCommandsHook : HookBase<MinecraftCommandsHook.HookDelega
         Reference<Experiments> a4,
         Reference<BaseGameVersion> a5);
 
-    public MinecraftCommandsHook()
-        : base(MinecraftCommands.Original.InitCoreEnums) { }
-
-    public override unsafe HookDelegate HookedFunc =>
+    public override HookDelegate HookedFunc =>
         (@this, a2, a3, a4, a5, a6) =>
         {
-            Log.Logger.Trace(nameof(MinecraftCommandsHook));
+            Log.Logger.LogTrace("In {ModuleName}", nameof(MinecraftCommandsHook));
             Global.MinecraftCommands.Instance = @this.Target;
             Original(@this, a2, a3, a4, a5, a6);
             TryUninstall();

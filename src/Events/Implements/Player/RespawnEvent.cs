@@ -1,35 +1,36 @@
-﻿using Hosihikari.Minecraft.Extension.Events;
-using Hosihikari.Minecraft;
-using Hosihikari.NativeInterop.Unmanaged;
+﻿using Hosihikari.NativeInterop.Unmanaged;
+using Microsoft.Extensions.Logging;
 
-public class RespawnEventArgs : EventArgsBase
-{
-    public required ServerPlayer ServerPlayer { get; init; }
-}
+namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
 
-namespace Hosihikari.Minecraft.Extension.Events.Implements.Player
+public sealed class RespawnEventArgs : EventArgsBase
 {
-    public class RespawnEvent : HookEventBase<RespawnEventArgs, RespawnEvent.HookDelegate>
+    internal RespawnEventArgs(ServerPlayer serverPlayer)
     {
-        public unsafe delegate void HookDelegate(Pointer<ServerPlayer> serverPlayerPtr);
-
-        public RespawnEvent()
-            : base(ServerPlayer.Original.Respawn) { }
-
-        public override unsafe HookDelegate HookedFunc =>
-            serverPlayerPtr =>
-            {
-                try
-                { //Actor::getIsExperienceDropEnabled
-                    var e = new RespawnEventArgs { ServerPlayer = serverPlayerPtr.Target };
-                    OnEventBefore(e);
-                    Original(serverPlayerPtr);
-                    OnEventAfter(e);
-                }
-                catch (Exception ex)
-                {
-                    Log.Logger.Error(nameof(InitializedEvent), ex);
-                }
-            };
+        ServerPlayer = serverPlayer;
     }
+    public ServerPlayer ServerPlayer { get; }
 }
+
+
+public class RespawnEvent() : HookEventBase<RespawnEventArgs, RespawnEvent.HookDelegate>(ServerPlayer.Original.Respawn)
+{
+    public delegate void HookDelegate(Pointer<ServerPlayer> serverPlayerPtr);
+
+    public override HookDelegate HookedFunc =>
+        serverPlayerPtr =>
+        {
+            try
+            { //Actor::getIsExperienceDropEnabled
+                RespawnEventArgs e = new(serverPlayerPtr.Target);
+                OnEventBefore(e);
+                Original(serverPlayerPtr);
+                OnEventAfter(e);
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}", nameof(InitializedEvent), ex);
+            }
+        };
+}
+

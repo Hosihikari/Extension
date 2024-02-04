@@ -1,4 +1,4 @@
-﻿namespace Hosihikari.FormUI;
+﻿namespace Hosihikari.Minecraft.Extension.FormUI;
 
 public abstract class SimpleFormElement : FormElementBase
 {

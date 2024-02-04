@@ -22,8 +22,8 @@ public static class Global
     public static GlobalInstance<RakNet.RakPeer> RakPeer { get; } =
         new(() => new RakPeerHook());
 
-    public static GlobalInstance<AllowListFile> AllowListFile { get; } =
-        new(() => new AllowListFileHook());
+    // public static GlobalInstance<AllowListFile> AllowListFile { get; } =
+    //     new(() => new AllowListFileHook());
 
     public static GlobalInstance<Scoreboard> Scoreboard { get; } =
         new(() => new ScoreboardHook());

@@ -1,26 +1,18 @@
-﻿using Hosihikari.Minecraft;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Hosihikari.FormUI;
+namespace Hosihikari.Minecraft.Extension.FormUI.Element;
 
-public class Button : SimpleFormElement
+public sealed class Button : SimpleFormElement
 {
-    public class ButtonClickedEventArgs : EventArgs
+    public class ButtonClickedEventArgs(Player player) : EventArgs
     {
-        private readonly Player player;
-
-        public Player Player => player;
-
-        public ButtonClickedEventArgs(Player player)
-        {
-            this.player = player;
-        }
+        public Player Player { get; } = player;
     }
 
-    internal struct ImageData
+    private struct ImageData
     {
-        private string data;
+        private string _data;
 
         [JsonPropertyName("type")]
         public string Type { get; private set; }
@@ -28,26 +20,26 @@ public class Button : SimpleFormElement
         [JsonPropertyName("data")]
         public string Data
         {
-            get => data;
+            get => _data;
             set
             {
-                Type = value.Contains("textures/") ? "path" : "url";
-                data = value;
+                Type = value.Contains("://") ? "url" : "path";
+                _data = value;
             }
         }
     }
 
-    private string text = string.Empty;
+    private string _text = string.Empty;
 
-    private ImageData image;
+    private ImageData _image;
 
     [JsonPropertyName("text")]
     public string Text
     {
-        get => text;
+        get => _text;
         set
         {
-            text = value;
+            _text = value;
             OnPropertyChanged(nameof(Text));
         }
     }
@@ -55,17 +47,15 @@ public class Button : SimpleFormElement
     [JsonPropertyName("image")]
     public string Image
     {
-        get => image.Data;
+        get => _image.Data;
         set
         {
-            image.Data = value;
+            _image.Data = value;
             OnPropertyChanged(nameof(Image));
         }
     }
 
-#nullable enable
     public event EventHandler<ButtonClickedEventArgs>? Clicked;
-#nullable disable
 
     internal void InvokeOnClicked(Player player)
         => Clicked?.Invoke(this, new(player));

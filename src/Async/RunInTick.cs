@@ -1,14 +1,13 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 
 namespace Hosihikari.Minecraft.Extension.Async;
 
-public class RunInTickVoid : INotifyCompletion
+public sealed class RunInTickVoid : INotifyCompletion
 {
     public static RunInTickVoid StartAsync(Action func)
     {
-        var asyncOperation = new RunInTickVoid(out var reportResult, out var reportException);
+        RunInTickVoid asyncOperation = new(out Action reportResult, out Action<Exception> reportException);
         LevelTick.RunInTick(() =>
         {
             try
@@ -53,7 +52,7 @@ public class RunInTickVoid : INotifyCompletion
     /// </summary>
     public void GetResult()
     {
-        if (_exception != null)
+        if (_exception is not null)
         {
             ExceptionDispatchInfo.Capture(_exception).Throw();
         }
@@ -68,7 +67,7 @@ public class RunInTickVoid : INotifyCompletion
     {
         if (IsCompleted)
         {
-            Core.QueueWorkItem(() => continuation?.Invoke());
+            Core.QueueWorkItem(continuation);
         }
         else
         {
@@ -79,7 +78,7 @@ public class RunInTickVoid : INotifyCompletion
     private void ReportResult()
     {
         IsCompleted = true;
-        if (_continuation != null)
+        if (_continuation is not null)
         {
             Core.QueueWorkItem(_continuation);
         }
@@ -88,13 +87,13 @@ public class RunInTickVoid : INotifyCompletion
     private void ReportException(Exception exception)
     {
         _exception = exception;
-        if (_exception != null)
+        if (_exception is not null)
         {
             //todo log
             //Console.WriteLineErr(nameof(RunInTickAsyncVoid), _exception );
         }
         IsCompleted = true;
-        if (_continuation != null)
+        if (_continuation is not null)
         {
             Core.QueueWorkItem(_continuation);
         }
@@ -121,11 +120,11 @@ public class RunInTickVoid : INotifyCompletion
     }
 }
 
-public class RunInTick<T> : INotifyCompletion //,IAwaitable<T>, IAwaiter<T>
+public sealed class RunInTick<T> : INotifyCompletion //,IAwaitable<T>, IAwaiter<T>
 {
     public static RunInTick<T> StartAsync(Func<T> func)
     {
-        var asyncOperation = new RunInTick<T>(out var reportResult, out var reportException);
+        RunInTick<T> asyncOperation = new(out Action<T> reportResult, out Action<Exception> reportException);
         LevelTick.RunInTick(() =>
         {
             try
@@ -141,8 +140,8 @@ public class RunInTick<T> : INotifyCompletion //,IAwaitable<T>, IAwaiter<T>
     }
 
     private RunInTick(
-        [NotNull] out Action<T> reportResult,
-        [NotNull] out Action<Exception> reportException
+        out Action<T> reportResult,
+        out Action<Exception> reportException
     )
     {
         reportResult = ReportResult;
@@ -171,15 +170,7 @@ public class RunInTick<T> : INotifyCompletion //,IAwaitable<T>, IAwaiter<T>
     /// </summary>
     public T? Result
     {
-        get
-        {
-            if (IsCompleted)
-            {
-                return _result;
-            }
-
-            return default;
-        }
+        get => IsCompleted ? _result : default;
         private set => _result = value;
     }
 
@@ -199,7 +190,7 @@ public class RunInTick<T> : INotifyCompletion //,IAwaitable<T>, IAwaiter<T>
     /// </summary>
     public T GetResult()
     {
-        if (_exception != null)
+        if (_exception is not null)
         {
             // throw the exception that occurred in the asynchronous operation
             ExceptionDispatchInfo.Capture(_exception).Throw();
@@ -219,7 +210,7 @@ public class RunInTick<T> : INotifyCompletion //,IAwaitable<T>, IAwaiter<T>
         {
             // if the task has been completed when the await starts, execute the code after the await directly.
             // Note that even if _continuation has a value, you don't need to care, because it will be executed when the report ends.
-            Core.QueueWorkItem(() => continuation?.Invoke());
+            Core.QueueWorkItem(continuation);
         }
         else
         {
@@ -234,7 +225,7 @@ public class RunInTick<T> : INotifyCompletion //,IAwaitable<T>, IAwaiter<T>
     {
         Result = r;
         IsCompleted = true;
-        if (_continuation != null)
+        if (_continuation is not null)
         {
             //Dispatcher.InvokeAsync(_continuation, _priority);
             Core.QueueWorkItem(_continuation);
@@ -250,7 +241,7 @@ public class RunInTick<T> : INotifyCompletion //,IAwaitable<T>, IAwaiter<T>
             //   Console.WriteLineErr(nameof(RunInTickAsync<T>), _exception, methodName, file, line);
         }
         IsCompleted = true;
-        if (_continuation != null)
+        if (_continuation is not null)
         {
             // todo ? Dispatcher.InvokeAsync(_continuation);
             // Queue the continuation action on the thread pool.

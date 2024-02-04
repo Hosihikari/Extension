@@ -1,32 +1,36 @@
 ﻿using Hosihikari.NativeInterop.Unmanaged;
+using Microsoft.Extensions.Logging;
 
 namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
 
-public class ChatEventArgs : CancelableEventArgsBase
+public sealed class ChatEventArgs : CancelableEventArgsBase
 {
-    public required ServerPlayer ServerPlayer { get; init; }
-    public required string Message { get; init; }
+    internal ChatEventArgs(ServerPlayer serverPlayer, string message)
+    {
+        ServerPlayer = serverPlayer;
+        Message = message;
+    }
+    public ServerPlayer ServerPlayer { get; }
+    public string Message { get; }
 }
 
-public class ChatEvent : HookCancelableEventBase<ChatEventArgs, ChatEvent.HookDelegate>
+public sealed class ChatEvent()
+    : HookCancelableEventBase<ChatEventArgs, ChatEvent.HookDelegate>(ServerNetworkHandler.Original.Handle)
 {
-    public ChatEvent()
-        : base(ServerNetworkHandler.Original.Handle) { }
-
-    public unsafe delegate void HookDelegate(
+    public delegate void HookDelegate(
         Pointer<ServerNetworkHandler> networkHandler,
         Reference<NetworkIdentifier> networkIdentifier,
         Reference<TextPacket> textPacket
     );
 
-    public override unsafe HookDelegate HookedFunc =>
+    public override HookDelegate HookedFunc =>
         (networkHandlerPtr, networkIdentifierPtr, textPacketPtr) =>
         {
             try
             {
-                var networkHandler = networkHandlerPtr.Target;
-                var networkIdentifier = networkIdentifierPtr.Target;
-                var packet = textPacketPtr.Target;
+                ServerNetworkHandler networkHandler = networkHandlerPtr.Target;
+                NetworkIdentifier networkIdentifier = networkIdentifierPtr.Target;
+                TextPacket packet = textPacketPtr.Target;
 
                 throw new NotImplementedException();
 
@@ -52,7 +56,7 @@ public class ChatEvent : HookCancelableEventBase<ChatEventArgs, ChatEvent.HookDe
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(nameof(ChatEvent), ex);
+                Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}", nameof(ChatEvent), ex);
             }
         };
 }

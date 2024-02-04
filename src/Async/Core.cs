@@ -1,33 +1,29 @@
 ﻿namespace Hosihikari.Minecraft.Extension.Async;
 
-public class Core
+public static class Core
 {
     /// <summary>
-    /// Queue in thread pool.
+    ///     Queue in thread pool.
     /// </summary>
     public static void QueueWorkItem(Action act)
     {
-        ThreadPool.QueueUserWorkItem(
-            x =>
+        Task.Run(() =>
+        {
+            try
+            {
+                act();
+            }
+            catch (Exception)
             {
                 try
                 {
-                    x();
+                    //Console.WriteLineErr(nameof(Async), ex, methodName, file, line);
                 }
-                catch (Exception)
+                catch
                 {
-                    try
-                    {
-                        //Console.WriteLineErr(nameof(Async), ex, methodName, file, line);
-                    }
-                    catch
-                    {
-                        // ignored
-                    }
+                    // ignored
                 }
-            },
-            act,
-            true
-        );
+            }
+        });
     }
 }

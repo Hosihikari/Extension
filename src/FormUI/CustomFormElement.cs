@@ -1,6 +1,7 @@
-﻿using System.Text.Json.Serialization;
+﻿using Hosihikari.Minecraft.Extension.FormUI.Element;
+using System.Text.Json.Serialization;
 
-namespace Hosihikari.FormUI;
+namespace Hosihikari.Minecraft.Extension.FormUI;
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
 [JsonDerivedType(typeof(Dropdown), "dropdown")]
@@ -12,7 +13,7 @@ namespace Hosihikari.FormUI;
 public abstract class CustomFormElement : FormElementBase
 {
     [JsonIgnore]
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; }
 
     [JsonIgnore]
     public string Value { get; set; } = string.Empty;
@@ -33,11 +34,7 @@ public abstract class CustomFormElement : FormElementBase
 
     public T GetValue<T>() where T : IParsable<T>, new()
     {
-        if (T.TryParse(Value, null, out var result))
-        {
-            return result;
-        }
-        return new();
+        return T.TryParse(Value, null, out T? result) ? result : new();
     }
 
 
@@ -45,7 +42,7 @@ public abstract class CustomFormElement : FormElementBase
     {
         Name = name;
 
-        PropertyChanged += (obj, args) =>
+        PropertyChanged += (_, args) =>
         {
             switch (args.PropertyName)
             {
@@ -55,7 +52,6 @@ public abstract class CustomFormElement : FormElementBase
         };
     }
 
-#nullable enable
     public event EventHandler<EventArgs>? ValueChanged;
 
     internal void InvokeValueChanged()

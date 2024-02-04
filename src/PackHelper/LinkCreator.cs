@@ -3,7 +3,7 @@ using Hosihikari.NativeInterop.Utils;
 
 namespace Hosihikari.Minecraft.Extension.PackHelper;
 
-#if LINUX
+#if !WINDOWS
 public enum PackType
 {
     ResourcePack,
@@ -17,23 +17,24 @@ public static partial class PackHelper
     {
         if (!Directory.Exists(packDirectory))
             throw new DirectoryNotFoundException($"packDirectory {packDirectory} not found");
-        var target = System.IO.Path.Combine(
+        string target = System.IO.Path.Combine(
             Environment.CurrentDirectory,
             packType switch
             {
                 PackType.BehaviorPack => "development_behavior_packs",
                 PackType.ResourcePack => "development_resource_packs",
+                PackType.Unknown => throw new IndexOutOfRangeException(),
                 _ => throw new ArgumentOutOfRangeException(nameof(packType), packType, null)
             }
         );
         if (!Directory.Exists(target))
             Directory.CreateDirectory(target);
-        var link = System.IO.Path.Combine(target, info.PackId.ToString());
+        string link = System.IO.Path.Combine(target, info.PackId.ToString());
         if (Directory.Exists(link))
         {
             if (LinkUtils.IsLink(link))
             {
-                var current = LinkUtils.ReadLink(link);
+                string current = LinkUtils.ReadLink(link);
                 if (current == packDirectory)
                 {
                     LinkUtils.Unlink(link);
@@ -61,18 +62,18 @@ public static partial class PackHelper
                     {
                         if (!Directory.Exists(destFolder))
                             Directory.CreateDirectory(destFolder);
-                        var files = Directory.GetFiles(sourceFolder);
-                        foreach (var file in files)
+                        string[] files = Directory.GetFiles(sourceFolder);
+                        foreach (string file in files)
                         {
-                            var name = System.IO.Path.GetFileName(file);
-                            var dest = System.IO.Path.Combine(destFolder, name);
+                            string name = System.IO.Path.GetFileName(file);
+                            string dest = System.IO.Path.Combine(destFolder, name);
                             File.Copy(file, dest);
                         }
-                        var folders = Directory.GetDirectories(sourceFolder);
-                        foreach (var folder in folders)
+                        string[] folders = Directory.GetDirectories(sourceFolder);
+                        foreach (string folder in folders)
                         {
-                            var name = System.IO.Path.GetFileName(folder);
-                            var dest = System.IO.Path.Combine(destFolder, name);
+                            string name = System.IO.Path.GetFileName(folder);
+                            string dest = System.IO.Path.Combine(destFolder, name);
                             CopyFolder(folder, dest);
                         }
                     }

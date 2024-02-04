@@ -1,32 +1,34 @@
 using Hosihikari.NativeInterop.Unmanaged;
+using Microsoft.Extensions.Logging;
 
 namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
 
-public class LeftEventArgs : EventArgsBase
+public sealed class LeftEventArgs : EventArgsBase
 {
-    public required ServerPlayer ServerPlayer { get; init; }
+    internal LeftEventArgs(ServerPlayer serverPlayer)
+    {
+        ServerPlayer = serverPlayer;
+    }
+    public ServerPlayer ServerPlayer { get; }
 }
 
-public class LeftEvent : HookEventBase<LeftEventArgs, LeftEvent.HookDelegate>
+public sealed class LeftEvent() : HookEventBase<LeftEventArgs, LeftEvent.HookDelegate>(ServerPlayer.Original.Disconnect)
 {
-    public unsafe delegate void HookDelegate(Pointer<ServerPlayer> serverPlayerPtr);
+    public delegate void HookDelegate(Pointer<ServerPlayer> serverPlayerPtr);
 
-    public LeftEvent()
-        : base(ServerPlayer.Original.Disconnect) { }
-
-    public override unsafe HookDelegate HookedFunc =>
+    public override HookDelegate HookedFunc =>
         serverPlayerPtr =>
         {
             try
             {
-                var e = new LeftEventArgs { ServerPlayer = serverPlayerPtr.Target };
+                LeftEventArgs e = new(serverPlayerPtr.Target);
                 OnEventBefore(e);
                 Original(serverPlayerPtr);
                 OnEventAfter(e);
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(nameof(InitializedEvent), ex);
+                Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}", nameof(InitializedEvent), ex);
             }
         };
 }

@@ -1,25 +1,25 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Hosihikari.FormUI;
+namespace Hosihikari.Minecraft.Extension.FormUI.Element;
 
-public class StepSlider : CustomFormElement
+public sealed class StepSlider : CustomFormElement
 {
     [JsonIgnore]
     public override ElementType FormElementType => ElementType.Slider;
 
     protected override string Serialize() => JsonSerializer.Serialize(this);
 
-    private string title = string.Empty;
+    private string _title = string.Empty;
 
-    private FormElementCollection<string> options;
+    private FormElementCollection<string> _options;
 
-    private int @default = -1;
+    private int _default = -1;
 
     public StepSlider(string name) : base(name)
     {
-        options = new();
-        options.Changed += (_, _) => OnPropertyChanged(nameof(Options));
+        _options = [];
+        _options.Changed += (_, _) => OnPropertyChanged(nameof(Options));
     }
 
     //[JsonPropertyName("type")]
@@ -28,10 +28,10 @@ public class StepSlider : CustomFormElement
     [JsonPropertyName("text")]
     public string Title
     {
-        get => title;
+        get => _title;
         set
         {
-            title = value;
+            _title = value;
             OnPropertyChanged(nameof(Title));
         }
     }
@@ -39,10 +39,10 @@ public class StepSlider : CustomFormElement
     [JsonPropertyName("steps")]
     public FormElementCollection<string> Options
     {
-        get => options;
+        get => _options;
         set
         {
-            options = value;
+            _options = value;
             OnPropertyChanged(nameof(Options));
         }
     }
@@ -50,13 +50,13 @@ public class StepSlider : CustomFormElement
     [JsonPropertyName("default")]
     public int Default
     {
-        get => @default;
+        get => _default;
         set
         {
-            @default = value;
+            _default = value;
 
-            if (@default < 0 || @default >= Options.Count)
-                @default = 0;
+            if (_default < 0 || _default >= Options.Count)
+                _default = 0;
 
             OnPropertyChanged(nameof(Default));
         }

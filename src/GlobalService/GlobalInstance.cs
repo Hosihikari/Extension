@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Hosihikari.NativeInterop.Hook.ObjectOriented;
+using Microsoft.Extensions.Logging;
 
 namespace Hosihikari.Minecraft.Extension.GlobalService;
 
@@ -32,18 +33,20 @@ public sealed class GlobalInstance<T>
             lock (this)
             {
                 _instance = value;
-                if (_onInitQueue is not null)
+                if (_onInitQueue is null)
                 {
-                    //first init
-                    //call all callback and clear
-                    foreach (var action in _onInitQueue!)
-                    {
-                        action(_instance);
-                    }
-
-                    _onInitQueue.Clear();
-                    _onInitQueue = null;
+                    return;
                 }
+
+                //first init
+                //call all callback and clear
+                foreach (Action<T> action in _onInitQueue!)
+                {
+                    action(_instance);
+                }
+
+                _onInitQueue.Clear();
+                _onInitQueue = null;
             }
         }
     }
@@ -81,7 +84,7 @@ public sealed class GlobalInstance<T>
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(GetType().Name + "::" + nameof(OnInit), ex, file, line);
+                Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}\n  in {FileName}:{LineNumber}", GetType().Name + "::" + nameof(OnInit), ex, file, line);
             }
         });
     }

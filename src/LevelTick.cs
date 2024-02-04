@@ -6,13 +6,13 @@ namespace Hosihikari.Minecraft.Extension;
 
 public static class LevelTick
 {
-    private static bool _isInit;
-    private static unsafe delegate* unmanaged<void*, void> _originalFunc = null;
+    private static bool s_isInit;
+    private static unsafe delegate* unmanaged<void*, void> s_originalFunc = null;
 
     //[MethodImpl(MethodImplOptions.Synchronized)]
     internal static void InitHook()
     {
-        if (_isInit)
+        if (s_isInit)
             return;
         unsafe
         {
@@ -20,58 +20,57 @@ public static class LevelTick
                 NativeInterop.Hook.Function.Hook(
                     SymbolHelper.DlsymPointer(SymbolHelper.QuerySymbol(GameSession.Original.Tick)),
                     (delegate* unmanaged<void*, void>)&LevelTickHook,
-                    out var original,
+                    out void* original,
                     out _
-                ) == 0
+                ) is 0
             )
             {
-                _originalFunc = (delegate* unmanaged<void*, void>)original;
-                _tickQueue.Enqueue(() =>
+                s_originalFunc = (delegate* unmanaged<void*, void>)original;
+                s_tickQueue.Enqueue(() =>
                 {
                     // set tick thread's _isInTickThread to true
-                    _isInTickThread = true;
+                    IsInTickThread = true;
                 });
             }
         }
-        _isInit = true;
+        s_isInit = true;
     }
 
     [UnmanagedCallersOnly]
     internal static unsafe void LevelTickHook(void* @this)
     {
-        if (!_tickQueue.IsEmpty)
+        if (!s_tickQueue.IsEmpty)
         {
-            while (_tickQueue.TryDequeue(out var action))
+            while (s_tickQueue.TryDequeue(out Action? action))
             {
                 action();
             }
         }
-        _originalFunc(@this);
+        s_originalFunc(@this);
     }
 
     // The tick queue.
-    private static readonly ConcurrentQueue<Action> _tickQueue = new();
+    private static readonly ConcurrentQueue<Action> s_tickQueue = new();
 
     // Whether the current thread is the tick thread.
     // [ThreadStatic] and must be set to true in the tick thread.
-    [ThreadStatic]
-    private static bool _isInTickThread;
 
     /// <summary>
     /// Whether the current thread is the tick thread (MC main thread).
     /// </summary>
-    public static bool IsInTickThread => _isInTickThread;
+    [field: ThreadStatic]
+    public static bool IsInTickThread { get; private set; }
 
     public static void PostTick(Action action)
     {
-        _tickQueue.Enqueue(action);
+        s_tickQueue.Enqueue(action);
     }
 
     public static void RunInTick(Action action)
     {
-        if (_isInTickThread)
+        if (IsInTickThread)
             action();
         else
-            _tickQueue.Enqueue(action);
+            s_tickQueue.Enqueue(action);
     }
 }

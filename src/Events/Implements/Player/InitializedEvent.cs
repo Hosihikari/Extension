@@ -1,32 +1,36 @@
 using Hosihikari.NativeInterop.Unmanaged;
+using Microsoft.Extensions.Logging;
 
 namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
 
-public class InitializedEventArgs : EventArgsBase
+public sealed class InitializedEventArgs : EventArgsBase
 {
-    public required ServerPlayer ServerPlayer { get; init; }
+    internal InitializedEventArgs(ServerPlayer serverPlayer)
+    {
+        ServerPlayer = serverPlayer;
+    }
+    public ServerPlayer ServerPlayer { get; }
 }
 
-public class InitializedEvent : HookEventBase<InitializedEventArgs, InitializedEvent.HookDelegate>
+public sealed class InitializedEvent()
+    : HookEventBase<InitializedEventArgs, InitializedEvent.HookDelegate>(ServerPlayer.Original
+        .SetLocalPlayerAsInitialized)
 {
-    public unsafe delegate void HookDelegate(Pointer<ServerPlayer> serverPlayerPtr);
+    public delegate void HookDelegate(Pointer<ServerPlayer> serverPlayerPtr);
 
-    public InitializedEvent()
-        : base(ServerPlayer.Original.SetLocalPlayerAsInitialized) { }
-
-    public override unsafe HookDelegate HookedFunc =>
-        (serverPlayerPtr) =>
+    public override HookDelegate HookedFunc =>
+        serverPlayerPtr =>
         {
             try
             {
-                var e = new InitializedEventArgs { ServerPlayer = serverPlayerPtr.Target };
+                InitializedEventArgs e = new(serverPlayerPtr.Target);
                 OnEventBefore(e);
                 Original(serverPlayerPtr);
                 OnEventAfter(e);
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(nameof(InitializedEvent), ex);
+                Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}", nameof(InitializedEvent), ex);
             }
         };
 }

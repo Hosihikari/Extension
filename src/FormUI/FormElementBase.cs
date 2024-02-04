@@ -1,52 +1,55 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
-namespace Hosihikari.FormUI;
+namespace Hosihikari.Minecraft.Extension.FormUI;
 
 public abstract class FormElementBase
 {
 
-    private string? serializedData;
+    private string? _serializedData;
 
     [JsonIgnore]
     public string SerializedData
     {
         get
         {
-            if (IsSerialized is false)
+            if (IsSerialized)
             {
-                serializedData = Serialize();
-                IsSerialized = true;
+                return _serializedData;
             }
-            return serializedData;
+
+            _serializedData = Serialize();
+            IsSerialized = true;
+            return _serializedData;
         }
     }
 
     [JsonIgnore]
-    [MemberNotNullWhen(true, nameof(serializedData))]
+    [MemberNotNullWhen(true, nameof(_serializedData))]
     public bool IsSerialized { get; internal set; }
 
     protected abstract string Serialize();
 
-#nullable enable
     internal FormBase? Form { get; set; }
 
     public event EventHandler<PropertyChangedEventArgs>? PropertyChanged;
 
 
-    private bool onHandlingPropertyChanged = false;
+    private bool _onHandlingPropertyChanged;
     public void OnPropertyChanged(string propertyName = "")
     {
-        if (onHandlingPropertyChanged is false)
+        if (_onHandlingPropertyChanged)
         {
-            onHandlingPropertyChanged = true;
-
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            if (Form is not null)
-                Form.IsSerialized = false;
-
-            onHandlingPropertyChanged = false;
+            return;
         }
+
+        _onHandlingPropertyChanged = true;
+
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        if (Form is not null)
+            Form.IsSerialized = false;
+
+        _onHandlingPropertyChanged = false;
 
     }
 }

@@ -1,46 +1,37 @@
-﻿using Hosihikari.Minecraft;
+﻿using Hosihikari.Minecraft.Extension.FormUI.Element;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Hosihikari.FormUI;
+namespace Hosihikari.Minecraft.Extension.FormUI;
 
-public class SimpleFormCallbackEventArgs : EventArgs
+public sealed class SimpleFormCallbackEventArgs(Player player, int chosen) : EventArgs
 {
-    private readonly Player player;
-    private readonly int chosen;
+    public Player Player { get; } = player;
 
-    public Player Player => player;
-
-    public int Chosen => chosen;
-
-    public SimpleFormCallbackEventArgs(Player player, int chosen)
-    {
-        this.player = player;
-        this.chosen = chosen;
-    }
+    public int Chosen { get; } = chosen;
 }
 
-public class SimpleForm : FormBase
+public sealed class SimpleForm : FormBase
 {
-    private FormElementCollection<SimpleFormElement> elements;
+    private FormElementCollection<SimpleFormElement> _elements;
 
-    private string title = string.Empty;
+    private string _title = string.Empty;
 
-    private string content = string.Empty;
+    private string _content = string.Empty;
 
     public SimpleForm()
     {
-        elements = new();
-        elements.Changed += OnCollectionChanged;
+        _elements = [];
+        _elements.Changed += OnCollectionChanged;
     }
 
     [JsonPropertyName("title")]
     public string Title
     {
-        get => title;
+        get => _title;
         set
         {
-            title = value;
+            _title = value;
             OnPropertyChanged(nameof(Title));
         }
     }
@@ -48,10 +39,10 @@ public class SimpleForm : FormBase
     [JsonPropertyName("content")]
     public string Content
     {
-        get => content;
+        get => _content;
         set
         {
-            content = value;
+            _content = value;
             OnPropertyChanged(nameof(Content));
         }
     }
@@ -61,14 +52,8 @@ public class SimpleForm : FormBase
     {
         get
         {
-            var buttons = new List<string>(elements.Count);
-            foreach (var element in elements)
-            {
-                if (element is Button)
-                {
-                    buttons.Add(element.SerializedData);
-                }
-            }
+            List<string> buttons = new(_elements.Count);
+            buttons.AddRange(_elements.OfType<Button>().Select(element => element.SerializedData));
             return buttons;
         }
         set => throw new NotSupportedException();
@@ -86,26 +71,25 @@ public class SimpleForm : FormBase
     [JsonIgnore]
     public FormElementCollection<SimpleFormElement> Elements
     {
-        get => elements;
+        get => _elements;
         set
         {
-            elements.Changed -= OnCollectionChanged;
-            elements = value;
-            elements.Changed += OnCollectionChanged;
+            _elements.Changed -= OnCollectionChanged;
+            _elements = value;
+            _elements.Changed += OnCollectionChanged;
             OnPropertyChanged(nameof(Elements));
         }
     }
 
     public SimpleForm Append(SimpleFormElement element)
     {
-        elements.Add(element);
+        _elements.Add(element);
         return this;
     }
 
     public void Remove(SimpleFormElement element)
-        => elements.Remove(element);
+        => _elements.Remove(element);
 
-#nullable enable
     public event EventHandler<SimpleFormCallbackEventArgs>? Callback;
 
     internal void InvokeCallback(Player player, int chosen)

@@ -1,20 +1,16 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Hosihikari.FormUI;
+namespace Hosihikari.Minecraft.Extension.FormUI.Element;
 
-public class Label : CustomFormElement
+public sealed class Label(string name) : CustomFormElement(name)
 {
     [JsonIgnore]
     public override ElementType FormElementType => ElementType.Label;
 
     protected override string Serialize() => JsonSerializer.Serialize(this);
 
-    private string text = string.Empty;
-
-    public Label(string name) : base(name)
-    {
-    }
+    private string _text = string.Empty;
 
     //[JsonPropertyName("type")]
     //public string Type { get; private set; } = "label";
@@ -22,10 +18,10 @@ public class Label : CustomFormElement
     [JsonPropertyName("text")]
     public string Text
     {
-        get => text;
+        get => _text;
         set
         {
-            text = value;
+            _text = value;
             OnPropertyChanged(nameof(Text));
         }
     }

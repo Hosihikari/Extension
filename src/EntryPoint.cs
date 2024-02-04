@@ -1,9 +1,9 @@
-﻿using System.Runtime.CompilerServices;
-using Hosihikari.Minecraft.Extension.PackHelper;
+﻿using Hosihikari.Minecraft.Extension.GlobalService;
+using System.Runtime.CompilerServices;
 
 namespace Hosihikari.Minecraft.Extension;
 
-internal class EntryPoint
+internal static class EntryPoint
 {
 #pragma warning disable CA2255
     [ModuleInitializer]
@@ -11,7 +11,7 @@ internal class EntryPoint
     internal static void Main() // must be loaded
     {
         LevelTick.InitHook();
-        GlobalService.Global.Init();
+        Global.Init();
         PackHelper.PackHelper.Init();
     }
 }

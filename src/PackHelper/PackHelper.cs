@@ -2,49 +2,43 @@ using System.Text.Json.Nodes;
 
 namespace Hosihikari.Minecraft.Extension.PackHelper;
 
-public record PackInfo(Guid PackId, (int, int, int) Version, string? SubPack = null);
+public sealed record PackInfo(Guid PackId, (int, int, int) Version, string? SubPack = null);
 
-public class PackAlreadyLoadedException : Exception
-{
-    public PackAlreadyLoadedException()
-        : base("Pack already loaded. Please add pack before server started.") { }
-}
+public sealed class PackAlreadyLoadedException() :
+    Exception("Pack already loaded. Please add pack before server started.");
 
-public class PackAlreadyAddedException : Exception
-{
-    public PackAlreadyAddedException(Guid packId)
-        : base($"Pack {packId} already added.") { }
-}
+public sealed class PackAlreadyAddedException(Guid packId) :
+    Exception($"Pack {packId} already added.");
 
 public static partial class PackHelper
 {
-    private static List<PackInfo>? ResourcePacks = new();
-    private static List<PackInfo>? BehaviorPacks = new();
+    private static List<PackInfo>? s_resourcePacks = [];
+    private static List<PackInfo>? s_behaviorPacks = [];
 
     public static void AddResourcePack(PackInfo packInfo)
     {
-        if (ResourcePacks is null)
+        if (s_resourcePacks is null)
             throw new PackAlreadyLoadedException();
-        if (ResourcePacks.Any(x => x.PackId == packInfo.PackId))
+        if (s_resourcePacks.Any(x => x.PackId == packInfo.PackId))
             throw new PackAlreadyAddedException(packInfo.PackId);
-        ResourcePacks.Add(packInfo);
+        s_resourcePacks.Add(packInfo);
     }
 
     public static void AddBehaviorPack(PackInfo packInfo)
     {
-        if (BehaviorPacks is null)
+        if (s_behaviorPacks is null)
             throw new PackAlreadyLoadedException();
-        if (BehaviorPacks.Any(x => x.PackId == packInfo.PackId))
+        if (s_behaviorPacks.Any(x => x.PackId == packInfo.PackId))
             throw new PackAlreadyAddedException(packInfo.PackId);
-        BehaviorPacks.Add(packInfo);
+        s_behaviorPacks.Add(packInfo);
     }
 
-    private static readonly PackStackHook _hook = new(ProcessWorldPacksJson);
+    private static readonly PackStackHook s_hook = new(ProcessWorldPacksJson);
 
     public static void Init()
     {
         //ResourcePackStack::deserialize
-        _hook.Install();
+        s_hook.Install();
     }
 
     /*world_resource_packs.json & world_behavior_packs.json
@@ -56,11 +50,27 @@ public static partial class PackHelper
      */
     public static void ProcessWorldPacksJson(JsonArray array)
     {
+        // add customize pack
+        if (s_resourcePacks is not null) //first call from resource pack
+        {
+            Process(s_resourcePacks);
+            s_resourcePacks = null;
+        }
+        else if (s_behaviorPacks is not null) //second call
+        {
+            Process(s_behaviorPacks);
+            s_behaviorPacks = null;
+            //no longer need, uninstall hook
+            LevelTick.PostTick(s_hook.Uninstall);
+        }
+
+        return;
+
         void Process(List<PackInfo> target)
         {
-            foreach (var (id, (a, b, c), subPack) in target)
+            foreach ((Guid id, (int a, int b, int c), string? subPack) in target)
             {
-                var pack = new JsonObject
+                JsonObject pack = new()
                 {
                     ["pack_id"] = id.ToString(),
                     ["version"] = new JsonArray { a, b, c }
@@ -69,20 +79,6 @@ public static partial class PackHelper
                     pack.Add("subpack", subPack);
                 array.Add(pack);
             }
-        }
-
-        // add customize pack
-        if (ResourcePacks is not null) //first call from resource pack
-        {
-            Process(ResourcePacks);
-            ResourcePacks = null;
-        }
-        else if (BehaviorPacks is not null) //second call
-        {
-            Process(BehaviorPacks);
-            BehaviorPacks = null;
-            //no longer need, uninstall hook
-            LevelTick.PostTick(_hook.Uninstall);
         }
     }
 }

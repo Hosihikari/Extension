@@ -1,44 +1,35 @@
-﻿using Hosihikari.Minecraft;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Hosihikari.FormUI;
+namespace Hosihikari.Minecraft.Extension.FormUI;
 
-public class CustomFormCallbackEventArgs : EventArgs
+public sealed class CustomFormCallbackEventArgs(Dictionary<string, CustomFormElement> elements, Player player)
+    : EventArgs
 {
-    private readonly Dictionary<string, CustomFormElement> elements;
-    private readonly Player player;
+    public Dictionary<string, CustomFormElement> Elements { get; } = elements;
 
-    public Dictionary<string, CustomFormElement> Elements => elements;
-
-    public Player Player => player;
-
-    public CustomFormCallbackEventArgs(Dictionary<string, CustomFormElement> elements, Player player)
-    {
-        this.elements = elements;
-        this.player = player;
-    }
+    public Player Player { get; } = player;
 }
 
-public class CustomForm : FormBase
+public sealed class CustomForm : FormBase
 {
-    private FormElementCollection<(string elementName, CustomFormElement element)> elements;
+    private FormElementCollection<(string elementName, CustomFormElement element)> _elements;
 
-    private string title = string.Empty;
+    private string _title = string.Empty;
 
     public CustomForm()
     {
-        elements = new();
-        elements.Changed += OnCollectionChanged;
+        _elements = [];
+        _elements.Changed += OnCollectionChanged;
     }
 
     [JsonPropertyName("title")]
     public string Title
     {
-        get => title;
+        get => _title;
         set
         {
-            title = value;
+            _title = value;
             OnPropertyChanged(nameof(Title));
         }
     }
@@ -48,8 +39,8 @@ public class CustomForm : FormBase
     {
         get
         {
-            var contents = new List<CustomFormElement>(elements.Count);
-            foreach (var (_, element) in elements)
+            List<CustomFormElement> contents = new(_elements.Count);
+            foreach ((_, CustomFormElement element) in _elements)
             {
                 contents.Add(element);
             }
@@ -67,40 +58,41 @@ public class CustomForm : FormBase
     [JsonIgnore]
     public FormElementCollection<(string elementName, CustomFormElement element)> Elements
     {
-        get => elements;
+        get => _elements;
         set
         {
-            elements.Changed -= OnCollectionChanged;
-            elements = value;
-            elements.Changed += OnCollectionChanged;
+            _elements.Changed -= OnCollectionChanged;
+            _elements = value;
+            _elements.Changed += OnCollectionChanged;
             OnPropertyChanged(nameof(Elements));
         }
     }
 
     public void Append(CustomFormElement element)
-        => elements.Add((element.Name, element));
+        => _elements.Add((element.Name, element));
 
     public void Remove(CustomFormElement element)
-        => elements.Remove((element.Name, element));
+        => _elements.Remove((element.Name, element));
 
     public void Remove(string elementName)
     {
-        foreach (var pair in elements)
+        foreach ((string elementName, CustomFormElement element) pair in _elements)
         {
-            if (pair.elementName == elementName)
+            if (pair.elementName != elementName)
             {
-                elements.Remove(pair);
-                return;
+                continue;
             }
-        };
+
+            _elements.Remove(pair);
+            return;
+        }
     }
 
     public void Remove(int index)
-        => elements.RemoveAt(index);
+        => _elements.RemoveAt(index);
 
     protected override string Serialize() => JsonSerializer.Serialize(this);
 
-#nullable enable
     public event EventHandler<CustomFormCallbackEventArgs>? Callback;
 
     internal void InvokeCallback(Dictionary<string, CustomFormElement> elements, Player player)

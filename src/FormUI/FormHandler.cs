@@ -1,98 +1,89 @@
-﻿global using static Hosihikari.NativeInterop.Unmanaged.Memory;
-
-using Hosihikari.Minecraft;
-using Hosihikari.Minecraft.Extension.Events;
-using Hosihikari.Minecraft.Extension.Events.Implements.Player;
-using Hosihikari.NativeInterop;
-using Hosihikari.NativeInterop.Hook.ObjectOriented;
+﻿using Hosihikari.Minecraft.Extension.Events;
+using Hosihikari.Minecraft.Extension.FormUI.Element;
 using Hosihikari.NativeInterop.Unmanaged;
 using Hosihikari.NativeInterop.Unmanaged.STL;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
-namespace Hosihikari.FormUI;
+namespace Hosihikari.Minecraft.Extension.FormUI;
 
-public class FormResponseEventArgs : EventArgsBase
+public sealed class FormResponseEventArgs : EventArgsBase
 {
-    public required Player Player { get; set; }
-    public required uint FormId { get; set; }
-    public required string Data { get; set; }
+    internal FormResponseEventArgs(Player player, uint formId, string data)
+    {
+        Player = player;
+        FormId = formId;
+        Data = data;
+    }
+    public Player Player { get; }
+    public uint FormId { get; }
+    public string Data { get; }
 }
 
-public unsafe class FormResponseEvent : HookEventBase<FormResponseEventArgs, FormResponseEvent.HookDelegate>
+public sealed unsafe class FormResponseEvent() : HookEventBase<FormResponseEventArgs, FormResponseEvent.HookDelegate>(
+    "?handle@?$PacketHandlerDispatcherInstance@VModalFormResponsePacket@@$0A@@@UEBAXAEBVNetworkIdentifier@@AEAVNetEventCallback@@AEAV?$shared_ptr@VPacket@@@std@@@Z")
 {
-    private const string PacketHandlerDispatcherInstanceHandleSymbol =
-#if WINDOWS
-    "?handle@?$PacketHandlerDispatcherInstance@VModalFormResponsePacket@@$0A@@@UEBAXAEBVNetworkIdentifier@@AEAVNetEventCallback@@AEAV?$shared_ptr@VPacket@@@std@@@Z";
-#else
-        "";
-#endif
+    // private readonly string PacketHandlerDispatcherInstanceHandleSymbol = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
+    //     "?handle@?$PacketHandlerDispatcherInstance@VModalFormResponsePacket@@$0A@@@UEBAXAEBVNetworkIdentifier@@AEAVNetEventCallback@@AEAV?$shared_ptr@VPacket@@@std@@@Z" :
+    //     throw new NotImplementedException();
 
     public delegate void HookDelegate(
         void* @this,
         Pointer<NetworkIdentifier> networkIdentifier,
         Pointer<ServerNetworkHandler> handler,
-        CxxSharedPtr shared_ptr_packet);
-
-    public FormResponseEvent() : base(PacketHandlerDispatcherInstanceHandleSymbol)
-    {
-    }
+        CxxSharedPtr sharedPtrPacket);
 
     public override HookDelegate HookedFunc =>
-        (@this, _identifier, _handler, shared_ptr) =>
+        (@this, networkIdentifier, pointer, sharedPtr) =>
         {
-            using var identifier = _identifier.Target;
-            using var handler = _handler.Target;
-            var player = handler.GetServerPlayer(identifier);
-            var packet = (Pointer<Packet>)(nint)shared_ptr.ptr;
+            using NetworkIdentifier identifier = networkIdentifier.Target;
+            using ServerNetworkHandler handler = pointer.Target;
+            Pointer<ServerPlayer> player = handler._getServerPlayer(identifier, default);
+            Pointer<Packet> packet = (Pointer<Packet>)(nint)sharedPtr.ptr;
 
-            if ((nint)player is not 0)
+            if (player == nint.Zero)
             {
-                string? data = null;
-
-                var id = DAccess<int>(packet, 48);
-                if (DAccess<NativeBool>(packet, 81))
-                {
-                    if (DAccess<NativeBool>(packet, 72))
-                    {
-                        using var json = DAccessAsReference<Json.Value>(packet, 56).Target;
-                        using var _cppstr = json.ToStyledString().GetInstance();
-                        data = _cppstr.ToString();
-                    }
-                }
-
-                if (string.IsNullOrWhiteSpace(data))
-                    data = "null";
-
-                if (data.EndsWith('\n'))
-                    data = data[..^1];
-
-                var e = new FormResponseEventArgs
-                {
-                    Player = player.As<Player>().Target,
-                    FormId = (uint)id,
-                    Data = data
-                };
-
-                OnEventBefore(e);
-                Original(@this, identifier, handler, shared_ptr);
-                OnEventAfter(e);
+                return;
             }
+
+            string? data = null;
+
+            int id = Memory.DAccess<int>(packet, 48);
+            if (Memory.DAccess<NativeBoolean>(packet, 81))
+            {
+                if (Memory.DAccess<NativeBoolean>(packet, 72))
+                {
+                    using Json.Value json = Memory.DAccessAsReference<Json.Value>(packet, 56).Target;
+                    using StdString cppstr = json.ToStyledString();
+                    data = cppstr.ToString();
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(data))
+                data = "null";
+
+            if (data.EndsWith('\n'))
+                data = data[..^1];
+
+            FormResponseEventArgs e = new(player.As<Player>().Target, (uint)id, data);
+
+            OnEventBefore(e);
+            Original(@this, identifier, handler, sharedPtr);
+            OnEventAfter(e);
         };
 }
 
-public unsafe static class FormHandler
+public static unsafe class FormHandler
 {
 
-    private static readonly List<uint> formIds = new();
+    private static readonly List<uint> s_formIds = [];
 
-    private static readonly Dictionary<uint, FormBase> forms = new();
+    private static readonly Dictionary<uint, FormBase> s_forms = new();
 
-    private static readonly System.Random random = new();
+    private static readonly System.Random s_random = new();
 
     static FormHandler()
     {
-        Events.FormResponse.Before += HandleFormPacket;
+        //Events.FormResponse.Before += HandleFormPacket;
     }
 
     private static uint NewFormId()
@@ -100,116 +91,120 @@ public unsafe static class FormHandler
         uint id;
         do
         {
-            id = unchecked((uint)unchecked(unchecked(random.Next() << 16) + random.Next()));
-        } while (formIds.Contains(id));
+            id = unchecked((uint)unchecked((s_random.Next() << 16) + s_random.Next()));
+        } while (s_formIds.Contains(id));
 
         return id;
     }
 
     private static void HandleFormPacket(object? sender, FormResponseEventArgs e)
     {
-        var player = e.Player;
-        var id = e.FormId;
-        var data = e.Data;
+        Player player = e.Player;
+        uint id = e.FormId;
+        string data = e.Data;
 
-        if (forms.TryGetValue(id, out var form) is false)
+        if (s_forms.TryGetValue(id, out FormBase? form) is false)
             return;
 
-        if (form is SimpleForm simpleForm)
+        switch (form)
         {
-            var chosen = data is "null" ? -1 : int.Parse(data);
-            simpleForm.InvokeCallback(player, chosen);
-
-            if (chosen >= 0)
-            {
-                var button = (Button)simpleForm.Elements[chosen];
-                button.InvokeOnClicked(player);
-            }
-
-            forms.Remove(id);
-        }
-        else if (form is ModalForm modalForm)
-        {
-            var chosen = data is "true" ? ModalForm.Chosen.Confirm : ModalForm.Chosen.Cancel;
-            modalForm.InvokeCallback(player, chosen);
-
-            forms.Remove(id);
-        }
-        else if (form is CustomForm customForm)
-        {
-            var doc = JsonDocument.Parse(data);
-            int index = 0;
-            foreach (var json in doc.RootElement.EnumerateArray())
-            {
-                var element = customForm.Elements[index].element;
-                switch (element.FormElementType)
+            case SimpleForm simpleForm:
                 {
-                    case CustomFormElement.ElementType.Label:
-                        break;
+                    int chosen = data is "null" ? -1 : int.Parse(data);
+                    simpleForm.InvokeCallback(player, chosen);
 
-                    case CustomFormElement.ElementType.Input:
-                    case CustomFormElement.ElementType.Toggle:
-                    case CustomFormElement.ElementType.Slider:
-                        element.Value = json.GetRawText();
-                        element.InvokeValueChanged();
-                        break;
+                    if (chosen >= 0)
+                    {
+                        Button button = (Button)simpleForm.Elements[chosen];
+                        button.InvokeOnClicked(player);
+                    }
 
-                    case CustomFormElement.ElementType.Dropdown:
-                        {
-                            var options = (element as Dropdown)!.Options;
-                            element.Value = options[json.GetInt32()];
-                            element.InvokeValueChanged();
-                        }
-                        break;
-                    case CustomFormElement.ElementType.StepSlider:
-                        {
-                            var options = (element as StepSlider)!.Options;
-                            element.Value = options[json.GetInt32()];
-                            element.InvokeValueChanged();
-                        }
-                        break;
+                    s_forms.Remove(id);
+                    break;
                 }
-                ++index;
-            }
+            case ModalForm modalForm:
+                {
+                    ModalForm.Chosen chosen = data is "true" ? ModalForm.Chosen.Confirm : ModalForm.Chosen.Cancel;
+                    modalForm.InvokeCallback(player, chosen);
 
-            if (customForm.IsNullCallback is false)
-            {
-                var elements = new Dictionary<string, CustomFormElement>();
-                foreach (var (k, v) in customForm.Elements)
-                    elements.Add(k, v);
+                    s_forms.Remove(id);
+                    break;
+                }
+            case CustomForm customForm:
+                {
+                    JsonDocument doc = JsonDocument.Parse(data);
+                    int index = 0;
+                    foreach (JsonElement json in doc.RootElement.EnumerateArray())
+                    {
+                        CustomFormElement element = customForm.Elements[index].element;
+                        switch (element.FormElementType)
+                        {
+                            case CustomFormElement.ElementType.Label:
+                                break;
 
-                customForm.InvokeCallback(elements, player);
-            }
+                            case CustomFormElement.ElementType.Input:
+                            case CustomFormElement.ElementType.Toggle:
+                            case CustomFormElement.ElementType.Slider:
+                                element.Value = json.GetRawText();
+                                element.InvokeValueChanged();
+                                break;
 
-            forms.Remove(id);
+                            case CustomFormElement.ElementType.Dropdown:
+                                {
+                                    FormElementCollection<string> options = (element as Dropdown)!.Options;
+                                    element.Value = options[json.GetInt32()];
+                                    element.InvokeValueChanged();
+                                }
+                                break;
+                            case CustomFormElement.ElementType.StepSlider:
+                                {
+                                    FormElementCollection<string> options = (element as StepSlider)!.Options;
+                                    element.Value = options[json.GetInt32()];
+                                    element.InvokeValueChanged();
+                                }
+                                break;
+                        }
+                        ++index;
+                    }
+
+                    if (customForm.IsNullCallback is false)
+                    {
+                        var elements = new Dictionary<string, CustomFormElement>();
+                        foreach (var (k, v) in customForm.Elements)
+                            elements.Add(k, v);
+
+                        customForm.InvokeCallback(elements, player);
+                    }
+
+                    s_forms.Remove(id);
+                    break;
+                }
         }
     }
 
-    public unsafe static void SendTo(this FormBase form, Player player)
+    public static void SendTo(this FormBase form, Player player)
     {
-        var id = NewFormId();
-        forms.Add(id, form);
-        var bs = new BinaryStream((ulong)sizeof(void*) + StdString.ClassSize);
+        uint id = NewFormId();
+        s_forms.Add(id, form);
+        using BinaryStream bs = new(sizeof(void*) + sizeof(StdString));
 
-        using var data = new StdString(form.SerializedData);
+        using StdString data = new(form.SerializedData);
 
         fixed (byte* ptr = data.Data)
         {
-            bs.WriteUnsignedVarInt(id);
-            bs.WriteString(new() { ptr = ptr, length = data.Length });
+            bs.WriteUnsignedVarInt(id, default, default);
+            bs.WriteString(new() { ptr = ptr, length = data.Length }, default, default);
         }
 
-        var sharedPtr_packet = MinecraftPackets.CreatePacket(MinecraftPacketIds.ShowModalForm);
-        HeapAlloc.Delete(sharedPtr_packet.ctr);
-        var packet = Packet.ConstructInstance((nint)sharedPtr_packet.ptr, false, false);
+        CxxSharedPtr sharedPtrPacket = MinecraftPackets.CreatePacket(MinecraftPacketIds.ShowModalForm);
+        HeapAlloc.Delete(sharedPtrPacket.ctr);
+        Packet packet = Packet.ConstructInstance((nint)sharedPtrPacket.ptr, false, false);
         packet.Read((Reference<ReadOnlyBinaryStream>)(nint)bs).Drop();
 
         player.SendNetworkPacket(packet);
 
-        var vfptr = CppTypeSystem.GetVTable<Packet.Vftable>(packet)->__UnknownVirtualFunction_0;
-        ((delegate* unmanaged<void*, void>)vfptr)(packet);
+        CppTypeSystem.GetVTable<Packet.Vftable>(packet)->vfptr_write(packet, default);
         HeapAlloc.Delete(packet);
-        bs.Dispose();
     }
 
     //public static bool SendTo(this SimpleForm form, Player player)
@@ -290,5 +285,4 @@ public unsafe static class FormHandler
     //        }
     //    }));
     //}
-#nullable disable
 }

@@ -2,7 +2,7 @@
 
 namespace Hosihikari.Minecraft.Extension.Events.Implements;
 
-public class Log
+public static class Log
 {
     private static readonly Lazy<ILogger> s_logger = new(() =>
     {

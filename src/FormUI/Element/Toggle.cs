@@ -1,9 +1,9 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Hosihikari.FormUI;
+namespace Hosihikari.Minecraft.Extension.FormUI.Element;
 
-public class Toggle : CustomFormElement
+public sealed class Toggle(string name) : CustomFormElement(name)
 {
 
     [JsonIgnore]
@@ -11,13 +11,9 @@ public class Toggle : CustomFormElement
 
     protected override string Serialize() => JsonSerializer.Serialize(this);
 
-    private string title = string.Empty;
+    private string _title = string.Empty;
 
-    private bool? @default = false;
-
-    public Toggle(string name) : base(name)
-    {
-    }
+    private bool? _default = false;
 
     [JsonPropertyName("type")]
     public string Type { get; private set; } = "toggle";
@@ -25,10 +21,10 @@ public class Toggle : CustomFormElement
     [JsonPropertyName("text")]
     public string Title
     {
-        get => title;
+        get => _title;
         set
         {
-            title = value;
+            _title = value;
             OnPropertyChanged(nameof(Title));
         }
     }
@@ -37,10 +33,10 @@ public class Toggle : CustomFormElement
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? Default
     {
-        get => @default;
+        get => _default;
         set
         {
-            @default = value;
+            _default = value;
             OnPropertyChanged(nameof(Default));
         }
     }
