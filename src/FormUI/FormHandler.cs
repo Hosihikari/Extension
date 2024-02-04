@@ -176,7 +176,7 @@ public static unsafe class FormHandler
 
                     if (customForm.IsNullCallback is false)
                     {
-                        Dictionary<string, CustomFormElement> elements = new Dictionary<string, CustomFormElement>();
+                        Dictionary<string, CustomFormElement> elements = new();
                         foreach ((string k, CustomFormElement v) in customForm.Elements)
                         {
                             elements.Add(k, v);

@@ -1,6 +1,5 @@
 using Hosihikari.NativeInterop.Hook.ObjectOriented;
 using Hosihikari.NativeInterop.Unmanaged;
-using Microsoft.Extensions.Logging;
 
 namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
 
@@ -10,7 +9,6 @@ internal sealed class MinecraftCommandsHook()
     public override HookDelegate HookedFunc =>
         (@this, a2, a3, a4, a5, a6) =>
         {
-            Log.Logger.LogTrace("In {ModuleName}", nameof(MinecraftCommandsHook));
             Global.MinecraftCommands.Instance = @this.Target;
             Original(@this, a2, a3, a4, a5, a6);
             TryUninstall();

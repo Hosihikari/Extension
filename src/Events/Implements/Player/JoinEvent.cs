@@ -1,5 +1,4 @@
 using Hosihikari.NativeInterop.Unmanaged;
-using Microsoft.Extensions.Logging;
 
 namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
 
@@ -26,16 +25,9 @@ public sealed class JoinEvent()
     public override HookDelegate HookedFunc =>
         (handler, identifier, request, serverPlayerPtr) =>
         {
-            try
-            {
-                JoinEventArgs e = new(serverPlayerPtr.Target);
-                OnEventBefore(e);
-                Original(handler, identifier, request, serverPlayerPtr);
-                OnEventAfter(e);
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}", nameof(JoinEvent), ex);
-            }
+            JoinEventArgs e = new(serverPlayerPtr.Target);
+            OnEventBefore(e);
+            Original(handler, identifier, request, serverPlayerPtr);
+            OnEventAfter(e);
         };
 }

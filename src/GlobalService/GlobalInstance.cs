@@ -1,5 +1,4 @@
 ﻿using Hosihikari.NativeInterop.Hook.ObjectOriented;
-using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
 namespace Hosihikari.Minecraft.Extension.GlobalService;
@@ -79,18 +78,7 @@ public sealed class GlobalInstance<T>
         [CallerLineNumber] int line = 0
     )
     {
-        PostOnInit(v =>
-        {
-            try
-            {
-                callback(v);
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}\n  in {FileName}:{LineNumber}",
-                    GetType().Name + "::" + nameof(OnInit), ex, file, line);
-            }
-        });
+        PostOnInit(v => { callback(v); });
     }
 
     public static implicit operator T(GlobalInstance<T> instance)

@@ -1,5 +1,4 @@
 using Hosihikari.NativeInterop.Unmanaged;
-using Microsoft.Extensions.Logging;
 
 namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
 
@@ -22,16 +21,9 @@ public sealed class InitializedEvent()
     public override HookDelegate HookedFunc =>
         serverPlayerPtr =>
         {
-            try
-            {
-                InitializedEventArgs e = new(serverPlayerPtr.Target);
-                OnEventBefore(e);
-                Original(serverPlayerPtr);
-                OnEventAfter(e);
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}", nameof(InitializedEvent), ex);
-            }
+            InitializedEventArgs e = new(serverPlayerPtr.Target);
+            OnEventBefore(e);
+            Original(serverPlayerPtr);
+            OnEventAfter(e);
         };
 }

@@ -1,5 +1,4 @@
 ﻿using Hosihikari.NativeInterop.Unmanaged;
-using Microsoft.Extensions.Logging;
 
 namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
 
@@ -20,17 +19,10 @@ public class RespawnEvent() : HookEventBase<RespawnEventArgs, RespawnEvent.HookD
     public override HookDelegate HookedFunc =>
         serverPlayerPtr =>
         {
-            try
-            {
-                //Actor::getIsExperienceDropEnabled
-                RespawnEventArgs e = new(serverPlayerPtr.Target);
-                OnEventBefore(e);
-                Original(serverPlayerPtr);
-                OnEventAfter(e);
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}", nameof(InitializedEvent), ex);
-            }
+            //Actor::getIsExperienceDropEnabled
+            RespawnEventArgs e = new(serverPlayerPtr.Target);
+            OnEventBefore(e);
+            Original(serverPlayerPtr);
+            OnEventAfter(e);
         };
 }

@@ -1,5 +1,4 @@
 using Hosihikari.NativeInterop.Unmanaged;
-using Microsoft.Extensions.Logging;
 
 namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
 
@@ -20,16 +19,9 @@ public sealed class LeftEvent() : HookEventBase<LeftEventArgs, LeftEvent.HookDel
     public override HookDelegate HookedFunc =>
         serverPlayerPtr =>
         {
-            try
-            {
-                LeftEventArgs e = new(serverPlayerPtr.Target);
-                OnEventBefore(e);
-                Original(serverPlayerPtr);
-                OnEventAfter(e);
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}", nameof(InitializedEvent), ex);
-            }
+            LeftEventArgs e = new(serverPlayerPtr.Target);
+            OnEventBefore(e);
+            Original(serverPlayerPtr);
+            OnEventAfter(e);
         };
 }

@@ -1,6 +1,4 @@
-﻿using Hosihikari.Minecraft.Extension.Events.Implements;
-using Hosihikari.NativeInterop.Hook.ObjectOriented;
-using Microsoft.Extensions.Logging;
+﻿using Hosihikari.NativeInterop.Hook.ObjectOriented;
 using System.Runtime.CompilerServices;
 
 namespace Hosihikari.Minecraft.Extension.Events;
@@ -112,35 +110,18 @@ public abstract class HookEventBase<TEventArgs, THookDelegate> : HookBase<THookD
 
     protected virtual void OnEventBefore(TEventArgs e)
     {
-        try
-        {
-            InternalBefore?.Invoke(this, e);
-        }
-        catch (Exception ex)
-        {
-            Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}",
-                _className + "::" + nameof(OnEventBefore), ex);
-        }
+        InternalBefore?.Invoke(this, e);
     }
 
     protected virtual void OnEventAfter(TEventArgs e)
     {
-        try
-        {
-            InternalAfter?.Invoke(this, e);
-        }
-        catch (Exception ex)
-        {
-            Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}",
-                _className + "::" + nameof(OnEventBefore), ex);
-        }
-
+        InternalAfter?.Invoke(this, e);
         Task? task = InternalAsync?.Invoke(this, e);
         //todo allow user to toggle off in config ?
         //output error when async event throw exception
         task?.ContinueWith(
-            t => Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}",
-                _className + "::" + nameof(OnEventAfter) + "Async", t.Exception),
+            t => Environment.FailFast($"Unhandled Exception in {_className + "::" + nameof(OnEventAfter) + "Async"}",
+                t.Exception),
             TaskContinuationOptions.OnlyOnFaulted
         );
     }

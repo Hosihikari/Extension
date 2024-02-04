@@ -1,5 +1,4 @@
 ﻿using Hosihikari.NativeInterop.Unmanaged;
-using Microsoft.Extensions.Logging;
 
 namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
 
@@ -27,37 +26,30 @@ public sealed class ChatEvent()
     public override HookDelegate HookedFunc =>
         (networkHandlerPtr, networkIdentifierPtr, textPacketPtr) =>
         {
-            try
-            {
-                ServerNetworkHandler networkHandler = networkHandlerPtr.Target;
-                NetworkIdentifier networkIdentifier = networkIdentifierPtr.Target;
-                TextPacket packet = textPacketPtr.Target;
+            ServerNetworkHandler networkHandler = networkHandlerPtr.Target;
+            NetworkIdentifier networkIdentifier = networkIdentifierPtr.Target;
+            TextPacket packet = textPacketPtr.Target;
 
-                throw new NotImplementedException();
+            throw new NotImplementedException();
 
-                //if (networkHandler.TryFetchPlayer(networkIdentifier, packet, out var player))
-                //{
-                //    var textType = *((byte*)textPacketPtr + OffsetData.Current.TextPacketTextTypeOffsetByte);//44
-                //    if (textType != 1)//not a chat packet
-                //    {
-                //        Original(networkHandlerPtr, networkIdentifierPtr, textPacketPtr);
-                //        return;
-                //    }
-                //    var e = new ChatEventArgs
-                //    {
-                //        ServerPlayer = player,
-                //        Message = NativeInterop.Utils.StringUtils.MarshalStdString((byte*)textPacketPtr + OffsetData.Current.TextPacketMessageOffsetByte)//80
-                //    };
-                //    OnEventBefore(e);
-                //    if (e.IsCanceled)
-                //        return; //cancel the original
-                //    Original(networkHandlerPtr, networkIdentifierPtr, textPacketPtr);
-                //    OnEventAfter(e);
-                //}
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}", nameof(ChatEvent), ex);
-            }
+            //if (networkHandler.TryFetchPlayer(networkIdentifier, packet, out var player))
+            //{
+            //    var textType = *((byte*)textPacketPtr + OffsetData.Current.TextPacketTextTypeOffsetByte);//44
+            //    if (textType != 1)//not a chat packet
+            //    {
+            //        Original(networkHandlerPtr, networkIdentifierPtr, textPacketPtr);
+            //        return;
+            //    }
+            //    var e = new ChatEventArgs
+            //    {
+            //        ServerPlayer = player,
+            //        Message = NativeInterop.Utils.StringUtils.MarshalStdString((byte*)textPacketPtr + OffsetData.Current.TextPacketMessageOffsetByte)//80
+            //    };
+            //    OnEventBefore(e);
+            //    if (e.IsCanceled)
+            //        return; //cancel the original
+            //    Original(networkHandlerPtr, networkIdentifierPtr, textPacketPtr);
+            //    OnEventAfter(e);
+            //}
         };
 }

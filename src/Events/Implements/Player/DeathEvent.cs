@@ -1,5 +1,4 @@
 ﻿using Hosihikari.NativeInterop.Unmanaged;
-using Microsoft.Extensions.Logging;
 
 namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
 
@@ -23,22 +22,9 @@ public sealed class DeathEvent() : HookEventBase<DeathEventArgs, DeathEvent.Hook
     public override HookDelegate HookedFunc =>
         (serverPlayerPtr, damageSource) =>
         {
-            bool needCallOriginal = true;
-            try
-            {
-                DeathEventArgs e = new(serverPlayerPtr.Target);
-                OnEventBefore(e);
-                needCallOriginal = false;
-                Original(serverPlayerPtr, damageSource);
-                OnEventAfter(e);
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}", nameof(DeathEvent), ex);
-                if (needCallOriginal)
-                {
-                    Original(serverPlayerPtr, damageSource);
-                }
-            }
+            DeathEventArgs e = new(serverPlayerPtr.Target);
+            OnEventBefore(e);
+            Original(serverPlayerPtr, damageSource);
+            OnEventAfter(e);
         };
 }

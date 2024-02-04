@@ -1,6 +1,5 @@
 using Hosihikari.NativeInterop.Hook.ObjectOriented;
 using Hosihikari.NativeInterop.Unmanaged;
-using Microsoft.Extensions.Logging;
 
 namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
 
@@ -10,7 +9,6 @@ internal sealed class StructureManagerHook()
     public override HookDelegate HookedFunc =>
         (@this, rpManager) =>
         {
-            Log.Logger.LogTrace("In {ModuleName}", nameof(StructureManagerHook));
             Original(@this, rpManager);
             Global.StructureManager.Instance = @this.Target;
             TryUninstall();
