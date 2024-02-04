@@ -10,6 +10,7 @@ public sealed class ChatEventArgs : CancelableEventArgsBase
         ServerPlayer = serverPlayer;
         Message = message;
     }
+
     public ServerPlayer ServerPlayer { get; }
     public string Message { get; }
 }

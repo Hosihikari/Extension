@@ -9,5 +9,6 @@ public static class Log
         ILoggerFactory factory = LoggerFactory.Create(builder => builder.AddConsole());
         return factory.CreateLogger(nameof(Events));
     });
+
     public static ILogger Logger => s_logger.Value;
 }

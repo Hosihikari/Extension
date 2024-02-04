@@ -12,12 +12,6 @@ namespace Hosihikari.Minecraft.Extension.FormUI;
 [JsonDerivedType(typeof(Toggle), "toggle")]
 public abstract class CustomFormElement : FormElementBase
 {
-    [JsonIgnore]
-    public string Name { get; set; }
-
-    [JsonIgnore]
-    public string Value { get; set; } = string.Empty;
-
     [Flags]
     public enum ElementType
     {
@@ -27,14 +21,6 @@ public abstract class CustomFormElement : FormElementBase
         Dropdown,
         Slider,
         StepSlider
-    }
-
-    [JsonIgnore]
-    public abstract ElementType FormElementType { get; }
-
-    public T GetValue<T>() where T : IParsable<T>, new()
-    {
-        return T.TryParse(Value, null, out T? result) ? result : new();
     }
 
 
@@ -47,13 +33,28 @@ public abstract class CustomFormElement : FormElementBase
             switch (args.PropertyName)
             {
                 case "Value": break;
-                default: IsSerialized = false; break;
+                default:
+                    IsSerialized = false;
+                    break;
             }
         };
+    }
+
+    [JsonIgnore] public string Name { get; set; }
+
+    [JsonIgnore] public string Value { get; set; } = string.Empty;
+
+    [JsonIgnore] public abstract ElementType FormElementType { get; }
+
+    public T GetValue<T>() where T : IParsable<T>, new()
+    {
+        return T.TryParse(Value, null, out T? result) ? result : new();
     }
 
     public event EventHandler<EventArgs>? ValueChanged;
 
     internal void InvokeValueChanged()
-        => ValueChanged?.Invoke(this, EventArgs.Empty);
+    {
+        ValueChanged?.Invoke(this, EventArgs.Empty);
+    }
 }

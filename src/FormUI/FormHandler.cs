@@ -14,6 +14,7 @@ public sealed class FormResponseEventArgs : EventArgsBase
         FormId = formId;
         Data = data;
     }
+
     public Player Player { get; }
     public uint FormId { get; }
     public string Data { get; }
@@ -59,10 +60,14 @@ public sealed unsafe class FormResponseEvent() : HookEventBase<FormResponseEvent
             }
 
             if (string.IsNullOrWhiteSpace(data))
+            {
                 data = "null";
+            }
 
             if (data.EndsWith('\n'))
+            {
                 data = data[..^1];
+            }
 
             FormResponseEventArgs e = new(player.As<Player>().Target, (uint)id, data);
 
@@ -74,7 +79,6 @@ public sealed unsafe class FormResponseEvent() : HookEventBase<FormResponseEvent
 
 public static unsafe class FormHandler
 {
-
     private static readonly List<uint> s_formIds = [];
 
     private static readonly Dictionary<uint, FormBase> s_forms = new();
@@ -104,7 +108,9 @@ public static unsafe class FormHandler
         string data = e.Data;
 
         if (s_forms.TryGetValue(id, out FormBase? form) is false)
+        {
             return;
+        }
 
         switch (form)
         {
@@ -164,14 +170,17 @@ public static unsafe class FormHandler
                                 }
                                 break;
                         }
+
                         ++index;
                     }
 
                     if (customForm.IsNullCallback is false)
                     {
-                        var elements = new Dictionary<string, CustomFormElement>();
-                        foreach (var (k, v) in customForm.Elements)
+                        Dictionary<string, CustomFormElement> elements = new Dictionary<string, CustomFormElement>();
+                        foreach ((string k, CustomFormElement v) in customForm.Elements)
+                        {
                             elements.Add(k, v);
+                        }
 
                         customForm.InvokeCallback(elements, player);
                     }

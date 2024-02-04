@@ -9,6 +9,7 @@ public sealed class DeathEventArgs : EventArgsBase
     {
         ServerPlayer = serverPlayer;
     }
+
     public ServerPlayer ServerPlayer { get; }
 }
 
@@ -35,7 +36,9 @@ public sealed class DeathEvent() : HookEventBase<DeathEventArgs, DeathEvent.Hook
             {
                 Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}", nameof(DeathEvent), ex);
                 if (needCallOriginal)
+                {
                     Original(serverPlayerPtr, damageSource);
+                }
             }
         };
 }

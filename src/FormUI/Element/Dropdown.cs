@@ -5,22 +5,19 @@ namespace Hosihikari.Minecraft.Extension.FormUI.Element;
 
 public sealed class Dropdown : CustomFormElement
 {
-    [JsonIgnore]
-    public override ElementType FormElementType => ElementType.Dropdown;
-
-    protected override string Serialize() => JsonSerializer.Serialize(this);
-
-    private string _title = string.Empty;
+    private int? _default = -1;
 
     private FormElementCollection<string> _options;
 
-    private int? _default = -1;
+    private string _title = string.Empty;
 
     public Dropdown(string name) : base(name)
     {
         _options = [];
         _options.Changed += (_, _) => OnPropertyChanged(nameof(Options));
     }
+
+    [JsonIgnore] public override ElementType FormElementType => ElementType.Dropdown;
 
     //[JsonPropertyName("type")]
     //public string Type { get; private set; } = "dropdown";
@@ -57,5 +54,10 @@ public sealed class Dropdown : CustomFormElement
             _default = value;
             OnPropertyChanged(nameof(Default));
         }
+    }
+
+    protected override string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
     }
 }

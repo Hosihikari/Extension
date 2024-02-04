@@ -9,6 +9,7 @@ public sealed class InitializedEventArgs : EventArgsBase
     {
         ServerPlayer = serverPlayer;
     }
+
     public ServerPlayer ServerPlayer { get; }
 }
 

@@ -44,16 +44,13 @@ public sealed class CustomForm : FormBase
             {
                 contents.Add(element);
             }
+
             return contents;
         }
         set => throw new NotSupportedException();
     }
 
-    [JsonPropertyName("type")]
-    public string Type { get; private set; } = "custom_form";
-
-
-    private void OnCollectionChanged(object? sender, EventArgs args) => OnPropertyChanged(nameof(Elements));
+    [JsonPropertyName("type")] public string Type { get; private set; } = "custom_form";
 
     [JsonIgnore]
     public FormElementCollection<(string elementName, CustomFormElement element)> Elements
@@ -68,11 +65,23 @@ public sealed class CustomForm : FormBase
         }
     }
 
+    [JsonIgnore] internal bool IsNullCallback => Callback is null;
+
+
+    private void OnCollectionChanged(object? sender, EventArgs args)
+    {
+        OnPropertyChanged(nameof(Elements));
+    }
+
     public void Append(CustomFormElement element)
-        => _elements.Add((element.Name, element));
+    {
+        _elements.Add((element.Name, element));
+    }
 
     public void Remove(CustomFormElement element)
-        => _elements.Remove((element.Name, element));
+    {
+        _elements.Remove((element.Name, element));
+    }
 
     public void Remove(string elementName)
     {
@@ -89,15 +98,19 @@ public sealed class CustomForm : FormBase
     }
 
     public void Remove(int index)
-        => _elements.RemoveAt(index);
+    {
+        _elements.RemoveAt(index);
+    }
 
-    protected override string Serialize() => JsonSerializer.Serialize(this);
+    protected override string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
+    }
 
     public event EventHandler<CustomFormCallbackEventArgs>? Callback;
 
     internal void InvokeCallback(Dictionary<string, CustomFormElement> elements, Player player)
-        => Callback?.Invoke(this, new(elements, player));
-
-    [JsonIgnore]
-    internal bool IsNullCallback => Callback is null;
+    {
+        Callback?.Invoke(this, new(elements, player));
+    }
 }

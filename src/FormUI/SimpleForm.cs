@@ -13,11 +13,10 @@ public sealed class SimpleFormCallbackEventArgs(Player player, int chosen) : Eve
 
 public sealed class SimpleForm : FormBase
 {
+    private string _content = string.Empty;
     private FormElementCollection<SimpleFormElement> _elements;
 
     private string _title = string.Empty;
-
-    private string _content = string.Empty;
 
     public SimpleForm()
     {
@@ -59,14 +58,7 @@ public sealed class SimpleForm : FormBase
         set => throw new NotSupportedException();
     }
 
-    [JsonPropertyName("type")]
-    public string Type { get; private set; } = "form";
-
-
-
-    protected override string Serialize() => JsonSerializer.Serialize(this);
-
-    private void OnCollectionChanged(object? sender, EventArgs args) => OnPropertyChanged(nameof(Elements));
+    [JsonPropertyName("type")] public string Type { get; private set; } = "form";
 
     [JsonIgnore]
     public FormElementCollection<SimpleFormElement> Elements
@@ -81,6 +73,17 @@ public sealed class SimpleForm : FormBase
         }
     }
 
+
+    protected override string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
+    }
+
+    private void OnCollectionChanged(object? sender, EventArgs args)
+    {
+        OnPropertyChanged(nameof(Elements));
+    }
+
     public SimpleForm Append(SimpleFormElement element)
     {
         _elements.Add(element);
@@ -88,10 +91,14 @@ public sealed class SimpleForm : FormBase
     }
 
     public void Remove(SimpleFormElement element)
-        => _elements.Remove(element);
+    {
+        _elements.Remove(element);
+    }
 
     public event EventHandler<SimpleFormCallbackEventArgs>? Callback;
 
     internal void InvokeCallback(Player player, int chosen)
-        => Callback?.Invoke(this, new(player, chosen));
+    {
+        Callback?.Invoke(this, new(player, chosen));
+    }
 }

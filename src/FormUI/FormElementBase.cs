@@ -5,6 +5,7 @@ namespace Hosihikari.Minecraft.Extension.FormUI;
 
 public abstract class FormElementBase
 {
+    private bool _onHandlingPropertyChanged;
 
     private string? _serializedData;
 
@@ -28,14 +29,12 @@ public abstract class FormElementBase
     [MemberNotNullWhen(true, nameof(_serializedData))]
     public bool IsSerialized { get; internal set; }
 
-    protected abstract string Serialize();
-
     internal FormBase? Form { get; set; }
+
+    protected abstract string Serialize();
 
     public event EventHandler<PropertyChangedEventArgs>? PropertyChanged;
 
-
-    private bool _onHandlingPropertyChanged;
     public void OnPropertyChanged(string propertyName = "")
     {
         if (_onHandlingPropertyChanged)
@@ -45,11 +44,12 @@ public abstract class FormElementBase
 
         _onHandlingPropertyChanged = true;
 
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        PropertyChanged?.Invoke(this, new(propertyName));
         if (Form is not null)
+        {
             Form.IsSerialized = false;
+        }
 
         _onHandlingPropertyChanged = false;
-
     }
 }

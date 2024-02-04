@@ -1,7 +1,3 @@
-using Hosihikari.NativeInterop.Hook.ObjectOriented;
-using Hosihikari.NativeInterop.Unmanaged;
-using Microsoft.Extensions.Logging;
-
 namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
 
 // internal sealed class AllowListFileHook : HookBase<AllowListFileHook.HookDelegate>

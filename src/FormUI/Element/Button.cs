@@ -5,33 +5,9 @@ namespace Hosihikari.Minecraft.Extension.FormUI.Element;
 
 public sealed class Button : SimpleFormElement
 {
-    public class ButtonClickedEventArgs(Player player) : EventArgs
-    {
-        public Player Player { get; } = player;
-    }
-
-    private struct ImageData
-    {
-        private string _data;
-
-        [JsonPropertyName("type")]
-        public string Type { get; private set; }
-
-        [JsonPropertyName("data")]
-        public string Data
-        {
-            get => _data;
-            set
-            {
-                Type = value.Contains("://") ? "url" : "path";
-                _data = value;
-            }
-        }
-    }
+    private ImageData _image;
 
     private string _text = string.Empty;
-
-    private ImageData _image;
 
     [JsonPropertyName("text")]
     public string Text
@@ -58,7 +34,35 @@ public sealed class Button : SimpleFormElement
     public event EventHandler<ButtonClickedEventArgs>? Clicked;
 
     internal void InvokeOnClicked(Player player)
-        => Clicked?.Invoke(this, new(player));
+    {
+        Clicked?.Invoke(this, new(player));
+    }
 
-    protected override string Serialize() => JsonSerializer.Serialize(this);
+    protected override string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
+    }
+
+    public class ButtonClickedEventArgs(Player player) : EventArgs
+    {
+        public Player Player { get; } = player;
+    }
+
+    private struct ImageData
+    {
+        private string _data;
+
+        [JsonPropertyName("type")] public string Type { get; private set; }
+
+        [JsonPropertyName("data")]
+        public string Data
+        {
+            get => _data;
+            set
+            {
+                Type = value.Contains("://") ? "url" : "path";
+                _data = value;
+            }
+        }
+    }
 }

@@ -1,17 +1,15 @@
-using System.Text.Json.Nodes;
 using Hosihikari.Minecraft.Extension.Events.Implements;
 using Hosihikari.NativeInterop.Hook.ObjectOriented;
 using Hosihikari.NativeInterop.Unmanaged.STL;
 using Hosihikari.NativeInterop.Utils;
 using Microsoft.Extensions.Logging;
+using System.Text.Json.Nodes;
 
 namespace Hosihikari.Minecraft.Extension.PackHelper;
 
 internal sealed class PackStackHook(Action<JsonArray> proceedFunc)
     : HookBase<PackStackHook.HookDelegate>(ResourcePackStack.Original.Deserialize)
 {
-    internal unsafe delegate void* HookDelegate(void* @this, void* a2, void* a3);
-
     public override unsafe HookDelegate HookedFunc =>
         (resourcePackStack, stream, a3) =>
         {
@@ -25,7 +23,8 @@ internal sealed class PackStackHook(Action<JsonArray> proceedFunc)
                 if (originalData.Length > 2)
                 {
                     try
-                    { //parse world_resource_packs.json
+                    {
+                        //parse world_resource_packs.json
                         array = JsonNode.Parse(originalData)?.AsArray()!;
                     }
                     catch (Exception e)
@@ -33,6 +32,7 @@ internal sealed class PackStackHook(Action<JsonArray> proceedFunc)
                         Log.Logger.LogError("Error Parsing PackStack: {Exception}", e);
                     }
                 }
+
                 //add custom pack
                 {
                     proceedFunc(array);
@@ -48,4 +48,6 @@ internal sealed class PackStackHook(Action<JsonArray> proceedFunc)
                 return Original(resourcePackStack, stream, a3);
             }
         };
+
+    internal unsafe delegate void* HookDelegate(void* @this, void* a2, void* a3);
 }

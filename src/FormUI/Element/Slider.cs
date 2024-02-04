@@ -5,21 +5,17 @@ namespace Hosihikari.Minecraft.Extension.FormUI.Element;
 
 public sealed class Slider(string name) : CustomFormElement(name)
 {
-
-    [JsonIgnore]
-    public override ElementType FormElementType => ElementType.Slider;
-
-    protected override string Serialize() => JsonSerializer.Serialize(this);
-
-    private string _title = string.Empty;
-
-    private double _min;
+    private double _default;
 
     private double _max;
 
+    private double _min;
+
     private double _step;
 
-    private double _default;
+    private string _title = string.Empty;
+
+    [JsonIgnore] public override ElementType FormElementType => ElementType.Slider;
 
     //[JsonPropertyName("type")]
     //public string Type { get; private set; } = "slider";
@@ -43,7 +39,10 @@ public sealed class Slider(string name) : CustomFormElement(name)
         {
             _min = value;
             if (_min > _max)
+            {
                 (_min, _max) = (_max, _min);
+            }
+
             OnPropertyChanged(nameof(Min));
         }
     }
@@ -56,7 +55,10 @@ public sealed class Slider(string name) : CustomFormElement(name)
         {
             _max = value;
             if (_min > _max)
+            {
                 (_min, _max) = (_max, _min);
+            }
+
             OnPropertyChanged(nameof(Max));
         }
     }
@@ -82,5 +84,10 @@ public sealed class Slider(string name) : CustomFormElement(name)
             _default = Math.Max(Math.Min(_default, _max), _min);
             OnPropertyChanged(nameof(Default));
         }
+    }
+
+    protected override string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
     }
 }

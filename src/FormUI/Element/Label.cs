@@ -5,12 +5,9 @@ namespace Hosihikari.Minecraft.Extension.FormUI.Element;
 
 public sealed class Label(string name) : CustomFormElement(name)
 {
-    [JsonIgnore]
-    public override ElementType FormElementType => ElementType.Label;
-
-    protected override string Serialize() => JsonSerializer.Serialize(this);
-
     private string _text = string.Empty;
+
+    [JsonIgnore] public override ElementType FormElementType => ElementType.Label;
 
     //[JsonPropertyName("type")]
     //public string Type { get; private set; } = "label";
@@ -24,5 +21,10 @@ public sealed class Label(string name) : CustomFormElement(name)
             _text = value;
             OnPropertyChanged(nameof(Text));
         }
+    }
+
+    protected override string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
     }
 }

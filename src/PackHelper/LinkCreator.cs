@@ -1,5 +1,5 @@
-﻿using System.Runtime.InteropServices;
-using Hosihikari.NativeInterop.Utils;
+﻿using Hosihikari.NativeInterop.Utils;
+using System.Runtime.InteropServices;
 
 namespace Hosihikari.Minecraft.Extension.PackHelper;
 
@@ -16,7 +16,10 @@ public static partial class PackHelper
     public static void AddPack(PackType packType, string packDirectory, PackInfo info)
     {
         if (!Directory.Exists(packDirectory))
+        {
             throw new DirectoryNotFoundException($"packDirectory {packDirectory} not found");
+        }
+
         string target = System.IO.Path.Combine(
             Environment.CurrentDirectory,
             packType switch
@@ -28,7 +31,10 @@ public static partial class PackHelper
             }
         );
         if (!Directory.Exists(target))
+        {
             Directory.CreateDirectory(target);
+        }
+
         string link = System.IO.Path.Combine(target, info.PackId.ToString());
         if (Directory.Exists(link))
         {
@@ -45,6 +51,7 @@ public static partial class PackHelper
                 Directory.Delete(link, true);
             }
         }
+
         if (!Directory.Exists(link))
         {
             try
@@ -58,10 +65,14 @@ public static partial class PackHelper
                 if (!Directory.Exists(link))
                 {
                     CopyFolder(packDirectory, link);
+
                     void CopyFolder(string sourceFolder, string destFolder)
                     {
                         if (!Directory.Exists(destFolder))
+                        {
                             Directory.CreateDirectory(destFolder);
+                        }
+
                         string[] files = Directory.GetFiles(sourceFolder);
                         foreach (string file in files)
                         {
@@ -69,6 +80,7 @@ public static partial class PackHelper
                             string dest = System.IO.Path.Combine(destFolder, name);
                             File.Copy(file, dest);
                         }
+
                         string[] folders = Directory.GetDirectories(sourceFolder);
                         foreach (string folder in folders)
                         {
@@ -80,10 +92,15 @@ public static partial class PackHelper
                 }
             }
         }
+
         if (packType is PackType.BehaviorPack)
+        {
             AddBehaviorPack(info);
+        }
         else
+        {
             AddResourcePack(info);
+        }
     }
 }
 #endif

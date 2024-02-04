@@ -2,5 +2,8 @@
 
 public abstract class SimpleFormElement : FormElementBase
 {
-    public SimpleFormElement() => PropertyChanged += (obj, args) => IsSerialized = false;
+    public SimpleFormElement()
+    {
+        PropertyChanged += (obj, args) => IsSerialized = false;
+    }
 }

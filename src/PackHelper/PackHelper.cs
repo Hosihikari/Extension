@@ -15,25 +15,37 @@ public static partial class PackHelper
     private static List<PackInfo>? s_resourcePacks = [];
     private static List<PackInfo>? s_behaviorPacks = [];
 
+    private static readonly PackStackHook s_hook = new(ProcessWorldPacksJson);
+
     public static void AddResourcePack(PackInfo packInfo)
     {
         if (s_resourcePacks is null)
+        {
             throw new PackAlreadyLoadedException();
+        }
+
         if (s_resourcePacks.Any(x => x.PackId == packInfo.PackId))
+        {
             throw new PackAlreadyAddedException(packInfo.PackId);
+        }
+
         s_resourcePacks.Add(packInfo);
     }
 
     public static void AddBehaviorPack(PackInfo packInfo)
     {
         if (s_behaviorPacks is null)
+        {
             throw new PackAlreadyLoadedException();
+        }
+
         if (s_behaviorPacks.Any(x => x.PackId == packInfo.PackId))
+        {
             throw new PackAlreadyAddedException(packInfo.PackId);
+        }
+
         s_behaviorPacks.Add(packInfo);
     }
-
-    private static readonly PackStackHook s_hook = new(ProcessWorldPacksJson);
 
     public static void Init()
     {
@@ -76,7 +88,10 @@ public static partial class PackHelper
                     ["version"] = new JsonArray { a, b, c }
                 };
                 if (subPack is not null)
+                {
                     pack.Add("subpack", subPack);
+                }
+
                 array.Add(pack);
             }
         }

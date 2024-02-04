@@ -9,9 +9,9 @@ public sealed class RespawnEventArgs : EventArgsBase
     {
         ServerPlayer = serverPlayer;
     }
+
     public ServerPlayer ServerPlayer { get; }
 }
-
 
 public class RespawnEvent() : HookEventBase<RespawnEventArgs, RespawnEvent.HookDelegate>(ServerPlayer.Original.Respawn)
 {
@@ -21,7 +21,8 @@ public class RespawnEvent() : HookEventBase<RespawnEventArgs, RespawnEvent.HookD
         serverPlayerPtr =>
         {
             try
-            { //Actor::getIsExperienceDropEnabled
+            {
+                //Actor::getIsExperienceDropEnabled
                 RespawnEventArgs e = new(serverPlayerPtr.Target);
                 OnEventBefore(e);
                 Original(serverPlayerPtr);
@@ -33,4 +34,3 @@ public class RespawnEvent() : HookEventBase<RespawnEventArgs, RespawnEvent.HookD
             }
         };
 }
-

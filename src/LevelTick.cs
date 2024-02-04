@@ -1,6 +1,7 @@
-﻿using System.Collections.Concurrent;
+﻿using Hosihikari.NativeInterop;
+using Hosihikari.NativeInterop.Hook;
+using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
-using Hosihikari.NativeInterop;
 
 namespace Hosihikari.Minecraft.Extension;
 
@@ -9,15 +10,30 @@ public static class LevelTick
     private static bool s_isInit;
     private static unsafe delegate* unmanaged<void*, void> s_originalFunc = null;
 
+    // The tick queue.
+    private static readonly ConcurrentQueue<Action> s_tickQueue = new();
+
+    // Whether the current thread is the tick thread.
+    // [ThreadStatic] and must be set to true in the tick thread.
+
+    /// <summary>
+    ///     Whether the current thread is the tick thread (MC main thread).
+    /// </summary>
+    [field: ThreadStatic]
+    public static bool IsInTickThread { get; private set; }
+
     //[MethodImpl(MethodImplOptions.Synchronized)]
     internal static void InitHook()
     {
         if (s_isInit)
+        {
             return;
+        }
+
         unsafe
         {
             if (
-                NativeInterop.Hook.Function.Hook(
+                Function.Hook(
                     SymbolHelper.DlsymPointer(SymbolHelper.QuerySymbol(GameSession.Original.Tick)),
                     (delegate* unmanaged<void*, void>)&LevelTickHook,
                     out void* original,
@@ -33,6 +49,7 @@ public static class LevelTick
                 });
             }
         }
+
         s_isInit = true;
     }
 
@@ -46,20 +63,9 @@ public static class LevelTick
                 action();
             }
         }
+
         s_originalFunc(@this);
     }
-
-    // The tick queue.
-    private static readonly ConcurrentQueue<Action> s_tickQueue = new();
-
-    // Whether the current thread is the tick thread.
-    // [ThreadStatic] and must be set to true in the tick thread.
-
-    /// <summary>
-    /// Whether the current thread is the tick thread (MC main thread).
-    /// </summary>
-    [field: ThreadStatic]
-    public static bool IsInTickThread { get; private set; }
 
     public static void PostTick(Action action)
     {
@@ -69,8 +75,12 @@ public static class LevelTick
     public static void RunInTick(Action action)
     {
         if (IsInTickThread)
+        {
             action();
+        }
         else
+        {
             s_tickQueue.Enqueue(action);
+        }
     }
 }

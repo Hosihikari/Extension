@@ -5,18 +5,13 @@ namespace Hosihikari.Minecraft.Extension.FormUI.Element;
 
 public sealed class Toggle(string name) : CustomFormElement(name)
 {
-
-    [JsonIgnore]
-    public override ElementType FormElementType => ElementType.Toggle;
-
-    protected override string Serialize() => JsonSerializer.Serialize(this);
+    private bool? _default = false;
 
     private string _title = string.Empty;
 
-    private bool? _default = false;
+    [JsonIgnore] public override ElementType FormElementType => ElementType.Toggle;
 
-    [JsonPropertyName("type")]
-    public string Type { get; private set; } = "toggle";
+    [JsonPropertyName("type")] public string Type { get; private set; } = "toggle";
 
     [JsonPropertyName("text")]
     public string Title
@@ -39,5 +34,10 @@ public sealed class Toggle(string name) : CustomFormElement(name)
             _default = value;
             OnPropertyChanged(nameof(Default));
         }
+    }
+
+    protected override string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
     }
 }

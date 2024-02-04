@@ -11,6 +11,7 @@ public sealed class DestroyBlockEventArgs : CancelableEventArgsBase
         Position = position;
         DimensionId = dimensionId;
     }
+
     public Hosihikari.Minecraft.Player Player { get; }
     public BlockPos Position { get; }
     public int DimensionId { get; }
@@ -20,7 +21,8 @@ public sealed class DestroyBlockEvent()
     : HookEventBase<DestroyBlockEventArgs, DestroyBlockEvent.HookDelegate>(Block.Original.PlayerWillDestroy)
 {
     [return: MarshalAs(UnmanagedType.U1)]
-    public unsafe delegate bool HookDelegate(Pointer<Block> @this, Pointer<Hosihikari.Minecraft.Player> player, BlockPos* pos);
+    public unsafe delegate bool HookDelegate(Pointer<Block> @this, Pointer<Hosihikari.Minecraft.Player> player,
+        BlockPos* pos);
 
     private const int DimensionIdOffset = 352;
 
@@ -37,12 +39,13 @@ public sealed class DestroyBlockEvent()
             OnEventBefore(e);
 
             if (e.IsCanceled)
+            {
                 return false;
+            }
 
             bool ret = Original(@this, _player, pos);
 
             OnEventAfter(e);
             return ret;
         };
-
 }

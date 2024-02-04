@@ -5,13 +5,19 @@ namespace Hosihikari.Minecraft.Extension.FormUI;
 
 public sealed class ModalForm : FormBase
 {
-    private string _title = string.Empty;
+    [Flags]
+    public enum Chosen
+    {
+        Cancel,
+        Confirm
+    }
 
-    private string _content = string.Empty;
+    private string _cancelButton = string.Empty;
 
     private string _confirmButton = string.Empty;
 
-    private string _cancelButton = string.Empty;
+    private string _content = string.Empty;
+    private string _title = string.Empty;
 
     [JsonPropertyName("title")]
     public string Title
@@ -57,17 +63,18 @@ public sealed class ModalForm : FormBase
         }
     }
 
-    [JsonPropertyName("type")]
-    public string Type { get; private set; } = "modal";
+    [JsonPropertyName("type")] public string Type { get; private set; } = "modal";
 
 
-    protected override string Serialize() => JsonSerializer.Serialize(this);
-
-    [Flags]
-    public enum Chosen { Cancel, Confirm }
+    protected override string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
+    }
 
     public event Action<Player, Chosen>? Callback;
 
     internal void InvokeCallback(Player player, Chosen chosen)
-    => Callback?.Invoke(player, chosen);
+    {
+        Callback?.Invoke(player, chosen);
+    }
 }

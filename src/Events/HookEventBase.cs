@@ -1,7 +1,7 @@
-﻿using System.Runtime.CompilerServices;
-using Hosihikari.Minecraft.Extension.Events.Implements;
+﻿using Hosihikari.Minecraft.Extension.Events.Implements;
 using Hosihikari.NativeInterop.Hook.ObjectOriented;
 using Microsoft.Extensions.Logging;
+using System.Runtime.CompilerServices;
 
 namespace Hosihikari.Minecraft.Extension.Events;
 
@@ -21,7 +21,7 @@ public abstract class HookEventBase<TEventArgs, THookDelegate> : HookBase<THookD
             sourceFile.Replace("\\", "/") /*fix if compile in windows*/
         );
     }
-    
+
     protected HookEventBase(Delegate func, [CallerFilePath] string sourceFile = "")
         : base(func)
     {
@@ -79,27 +79,35 @@ public abstract class HookEventBase<TEventArgs, THookDelegate> : HookBase<THookD
     private void CheckEventAdded()
     {
         if (InternalBefore is null && InternalAfter is null && InternalAsync is null)
+        {
             LevelTick.PostTick(BeforeEventAdded);
+        }
     }
 
     private void CheckEventRemoved()
     {
         if (InternalBefore is null && InternalAfter is null && InternalAsync is null)
+        {
             LevelTick.PostTick(AfterEventAllRemoved);
+        }
     }
 
     protected virtual void BeforeEventAdded()
     {
         //install hook when first event added
-        if (!this.HasInstalled)
-            this.Install();
+        if (!HasInstalled)
+        {
+            Install();
+        }
     }
 
     protected virtual void AfterEventAllRemoved()
     {
         //uninstall hook when all event removed
-        if (this.HasInstalled)
-            this.Uninstall();
+        if (HasInstalled)
+        {
+            Uninstall();
+        }
     }
 
     protected virtual void OnEventBefore(TEventArgs e)
@@ -110,7 +118,8 @@ public abstract class HookEventBase<TEventArgs, THookDelegate> : HookBase<THookD
         }
         catch (Exception ex)
         {
-            Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}", _className + "::" + nameof(OnEventBefore), ex);
+            Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}",
+                _className + "::" + nameof(OnEventBefore), ex);
         }
     }
 
@@ -122,13 +131,16 @@ public abstract class HookEventBase<TEventArgs, THookDelegate> : HookBase<THookD
         }
         catch (Exception ex)
         {
-            Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}", _className + "::" + nameof(OnEventBefore), ex);
+            Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}",
+                _className + "::" + nameof(OnEventBefore), ex);
         }
+
         Task? task = InternalAsync?.Invoke(this, e);
         //todo allow user to toggle off in config ?
         //output error when async event throw exception
         task?.ContinueWith(
-            t => Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}", _className + "::" + nameof(OnEventAfter) + "Async", t.Exception),
+            t => Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}",
+                _className + "::" + nameof(OnEventAfter) + "Async", t.Exception),
             TaskContinuationOptions.OnlyOnFaulted
         );
     }
@@ -140,16 +152,23 @@ public abstract class HookCancelableEventBase<TEventArgs, THookDelegate>
     where THookDelegate : Delegate
 {
     protected HookCancelableEventBase(string symbol, [CallerFilePath] string sourceFile = "")
-        : base(symbol, sourceFile) { }
+        : base(symbol, sourceFile)
+    {
+    }
 
     protected HookCancelableEventBase(Delegate func, [CallerFilePath] string sourceFile = "")
-        : base(func, sourceFile) { }
+        : base(func, sourceFile)
+    {
+    }
 
     protected override void OnEventAfter(TEventArgs e)
     {
         //if the event canceled in before-event,the will not pass to after-event
         if (e.IsCanceled)
+        {
             return;
+        }
+
         base.OnEventAfter(e);
     }
 }

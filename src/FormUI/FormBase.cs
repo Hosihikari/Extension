@@ -43,11 +43,20 @@ public sealed class FormElementCollection<T> : IList<T>
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
-    public bool Contains(T item) => _list.Contains(item);
+    public bool Contains(T item)
+    {
+        return _list.Contains(item);
+    }
 
-    public void CopyTo(T[] array, int arrayIndex) => _list.CopyTo(array, arrayIndex);
+    public void CopyTo(T[] array, int arrayIndex)
+    {
+        _list.CopyTo(array, arrayIndex);
+    }
 
-    public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
+    public IEnumerator<T> GetEnumerator()
+    {
+        return _list.GetEnumerator();
+    }
 
     public bool Remove(T item)
     {
@@ -56,9 +65,15 @@ public sealed class FormElementCollection<T> : IList<T>
         return ret;
     }
 
-    IEnumerator IEnumerable.GetEnumerator() => _list.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return _list.GetEnumerator();
+    }
 
-    public int IndexOf(T item) => _list.IndexOf(item);
+    public int IndexOf(T item)
+    {
+        return _list.IndexOf(item);
+    }
 
     public void Insert(int index, T item)
     {
@@ -77,7 +92,13 @@ public sealed class FormElementCollection<T> : IList<T>
 
 public abstract class FormBase
 {
+    private bool _onHandlingPropertyChanged;
     private string _serializedData = string.Empty;
+
+    public FormBase()
+    {
+        PropertyChanged += (_, _) => { IsSerialized = false; };
+    }
 
     [JsonIgnore]
     public string SerializedData
@@ -95,14 +116,12 @@ public abstract class FormBase
         }
     }
 
-    [JsonIgnore]
-    public bool IsSerialized { get; internal set; }
+    [JsonIgnore] public bool IsSerialized { get; internal set; }
 
     protected abstract string Serialize();
 
     public event EventHandler<PropertyChangedEventArgs>? PropertyChanged;
 
-    private bool _onHandlingPropertyChanged;
     public void OnPropertyChanged(string propertyName = "")
     {
         if (_onHandlingPropertyChanged)
@@ -115,14 +134,5 @@ public abstract class FormBase
         PropertyChanged?.Invoke(this, new(propertyName));
 
         _onHandlingPropertyChanged = false;
-
-    }
-
-    public FormBase()
-    {
-        PropertyChanged += (_, _) =>
-        {
-            IsSerialized = false;
-        };
     }
 }

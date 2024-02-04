@@ -5,19 +5,13 @@ namespace Hosihikari.Minecraft.Extension.FormUI.Element;
 
 public sealed class Input(string name) : CustomFormElement(name)
 {
-    [JsonIgnore]
-    public override ElementType FormElementType => ElementType.Input;
-
-    protected override string Serialize()
-    {
-        return JsonSerializer.Serialize(this);
-    }
-
-    private string _title = string.Empty;
+    private string? _default;
 
     private string? _placeHolder;
 
-    private string? _default;
+    private string _title = string.Empty;
+
+    [JsonIgnore] public override ElementType FormElementType => ElementType.Input;
 
     //[JsonPropertyName("type")]
     //public string Type { get; private set; } = "input";
@@ -56,5 +50,10 @@ public sealed class Input(string name) : CustomFormElement(name)
             _default = value;
             OnPropertyChanged(nameof(Default));
         }
+    }
+
+    protected override string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
     }
 }

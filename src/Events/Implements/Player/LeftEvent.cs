@@ -9,6 +9,7 @@ public sealed class LeftEventArgs : EventArgsBase
     {
         ServerPlayer = serverPlayer;
     }
+
     public ServerPlayer ServerPlayer { get; }
 }
 

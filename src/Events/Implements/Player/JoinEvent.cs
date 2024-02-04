@@ -9,6 +9,7 @@ public sealed class JoinEventArgs : EventArgsBase
     {
         ServerPlayer = serverPlayer;
     }
+
     public ServerPlayer ServerPlayer { get; }
 }
 

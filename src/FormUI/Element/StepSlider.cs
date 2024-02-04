@@ -5,22 +5,19 @@ namespace Hosihikari.Minecraft.Extension.FormUI.Element;
 
 public sealed class StepSlider : CustomFormElement
 {
-    [JsonIgnore]
-    public override ElementType FormElementType => ElementType.Slider;
-
-    protected override string Serialize() => JsonSerializer.Serialize(this);
-
-    private string _title = string.Empty;
+    private int _default = -1;
 
     private FormElementCollection<string> _options;
 
-    private int _default = -1;
+    private string _title = string.Empty;
 
     public StepSlider(string name) : base(name)
     {
         _options = [];
         _options.Changed += (_, _) => OnPropertyChanged(nameof(Options));
     }
+
+    [JsonIgnore] public override ElementType FormElementType => ElementType.Slider;
 
     //[JsonPropertyName("type")]
     //public string Type { get; private set; } = "step_slider";
@@ -55,10 +52,17 @@ public sealed class StepSlider : CustomFormElement
         {
             _default = value;
 
-            if (_default < 0 || _default >= Options.Count)
+            if ((_default < 0) || (_default >= Options.Count))
+            {
                 _default = 0;
+            }
 
             OnPropertyChanged(nameof(Default));
         }
+    }
+
+    protected override string Serialize()
+    {
+        return JsonSerializer.Serialize(this);
     }
 }

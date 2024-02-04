@@ -1,20 +1,25 @@
-﻿using System.Runtime.CompilerServices;
-using Hosihikari.NativeInterop.Hook.ObjectOriented;
+﻿using Hosihikari.NativeInterop.Hook.ObjectOriented;
 using Microsoft.Extensions.Logging;
+using System.Runtime.CompilerServices;
 
 namespace Hosihikari.Minecraft.Extension.GlobalService;
 
 public sealed class GlobalInstance<T>
     where T : class
 {
-    public GlobalInstance() { }
+    private T? _instance;
+
+    private Queue<Action<T>>? _onInitQueue = new();
+
+    public GlobalInstance()
+    {
+    }
 
     public GlobalInstance(Func<IHook> hook)
     {
         hook().Install();
     }
 
-    private T? _instance;
     public bool IsInitialized => _instance is not null;
 
     public T Instance
@@ -51,8 +56,6 @@ public sealed class GlobalInstance<T>
         }
     }
 
-    private Queue<Action<T>>? _onInitQueue = new();
-
     private void PostOnInit(Action<T> callback)
     {
         lock (this)
@@ -84,10 +87,14 @@ public sealed class GlobalInstance<T>
             }
             catch (Exception ex)
             {
-                Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}\n  in {FileName}:{LineNumber}", GetType().Name + "::" + nameof(OnInit), ex, file, line);
+                Log.Logger.LogError("Unhandled Exception in {ModuleName}: {Exception}\n  in {FileName}:{LineNumber}",
+                    GetType().Name + "::" + nameof(OnInit), ex, file, line);
             }
         });
     }
 
-    public static implicit operator T(GlobalInstance<T> instance) => instance.Instance;
+    public static implicit operator T(GlobalInstance<T> instance)
+    {
+        return instance.Instance;
+    }
 }
