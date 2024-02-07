@@ -85,10 +85,10 @@ public static unsafe class FormHandler
 
     private static readonly System.Random s_random = new();
 
-    static FormHandler()
-    {
-        //Events.FormResponse.Before += HandleFormPacket;
-    }
+    // static FormHandler()
+    // {
+    //     Events.FormResponse.Before += HandleFormPacket;
+    // }
 
     private static uint NewFormId()
     {
@@ -116,16 +116,7 @@ public static unsafe class FormHandler
         {
             case SimpleForm simpleForm:
                 {
-                    int chosen = data is "null" ? -1 : int.Parse(data);
-                    simpleForm.InvokeCallback(player, chosen);
-
-                    if (chosen >= 0)
-                    {
-                        Button button = (Button)simpleForm.Elements[chosen];
-                        button.InvokeOnClicked(player);
-                    }
-
-                    s_forms.Remove(id);
+                    HandleSimpleForm(data, simpleForm, player, id);
                     break;
                 }
             case ModalForm modalForm:
@@ -189,6 +180,20 @@ public static unsafe class FormHandler
                     break;
                 }
         }
+    }
+
+    private static void HandleSimpleForm(string data, SimpleForm simpleForm, Player player, uint id)
+    {
+        int chosen = data is "null" ? -1 : int.Parse(data);
+        simpleForm.InvokeCallback(player, chosen);
+
+        if (chosen >= 0)
+        {
+            Button button = (Button)simpleForm.Elements[chosen];
+            button.InvokeOnClicked(player);
+        }
+
+        s_forms.Remove(id);
     }
 
     public static void SendTo(this FormBase form, Player player)

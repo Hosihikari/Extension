@@ -7,23 +7,27 @@ public static class Core
     /// </summary>
     public static void QueueWorkItem(Action act)
     {
-        Task.Run(() =>
-        {
-            try
-            {
-                act();
-            }
-            catch (Exception)
+        ThreadPool.QueueUserWorkItem(
+            x =>
             {
                 try
                 {
-                    //Console.WriteLineErr(nameof(Async), ex, methodName, file, line);
+                    x();
                 }
-                catch
+                catch (Exception)
                 {
-                    // ignored
+                    // try
+                    // {
+                    //     Console.WriteLineErr(nameof(Async), ex, methodName, file, line);
+                    // }
+                    // catch
+                    // {
+                    //     // ignored
+                    // }
                 }
-            }
-        });
+            },
+            act,
+            true
+        );
     }
 }
