@@ -5,14 +5,14 @@ namespace Hosihikari.Minecraft.Extension.Event.Implements.Player;
 
 public sealed class DestroyBlockEventArgs : CancelableEventArgsBase
 {
-    internal DestroyBlockEventArgs(Minecraft.Player player, nint position, int dimensionId = -1)
+    internal DestroyBlockEventArgs(Hosihikari.Minecraft.Player player, nint position, int dimensionId = -1)
     {
         Player = player;
         Position = position;
         DimensionId = dimensionId;
     }
 
-    public Minecraft.Player Player { get; }
+    public Hosihikari.Minecraft.Player Player { get; }
     public nint Position { get; }
     public int DimensionId { get; }
 }
@@ -21,7 +21,7 @@ public sealed class DestroyBlockEvent()
     : HookEventBase<DestroyBlockEventArgs, DestroyBlockEvent.HookDelegateType>(Block.Original.PlayerWillDestroy)
 {
     [return: MarshalAs(UnmanagedType.U1)]
-    public unsafe delegate bool HookDelegateType(Pointer<Block> @this, Pointer<Minecraft.Player> player,
+    public unsafe delegate bool HookDelegateType(Pointer<Block> @this, Pointer<Hosihikari.Minecraft.Player> player,
         nint* pos);
 
     private const int DimensionIdOffset = 352;
@@ -29,7 +29,7 @@ public sealed class DestroyBlockEvent()
     protected override unsafe HookDelegateType HookDelegate =>
         (@this, _player, pos) =>
         {
-            Minecraft.Player player = _player.Target;
+            Hosihikari.Minecraft.Player player = _player.Target;
             using Actor actor = player.As<Actor>();
             using Dimension dim = actor.Dimension.Target;
             int dimensionId = Memory.DAccess<int>(dim.Pointer, DimensionIdOffset);

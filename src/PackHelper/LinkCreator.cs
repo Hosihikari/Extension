@@ -21,7 +21,7 @@ public static partial class PackHelper
             throw new DirectoryNotFoundException($"packDirectory {packDirectory} not found");
         }
 
-        string target = Path.Combine(
+        string target = System.IO.Path.Combine(
             Environment.CurrentDirectory,
             packType switch
             {
@@ -36,7 +36,7 @@ public static partial class PackHelper
             Directory.CreateDirectory(target);
         }
 
-        string link = Path.Combine(target, info.PackId.ToString());
+        string link = System.IO.Path.Combine(target, info.PackId.ToString());
         if (Directory.Exists(link))
         {
             if (LinkUtils.IsLink(link))
@@ -77,16 +77,16 @@ public static partial class PackHelper
                         string[] files = Directory.GetFiles(sourceFolder);
                         foreach (string file in files)
                         {
-                            string name = Path.GetFileName(file);
-                            string dest = Path.Combine(destFolder, name);
+                            string name = System.IO.Path.GetFileName(file);
+                            string dest = System.IO.Path.Combine(destFolder, name);
                             File.Copy(file, dest);
                         }
 
                         string[] folders = Directory.GetDirectories(sourceFolder);
                         foreach (string folder in folders)
                         {
-                            string name = Path.GetFileName(folder);
-                            string dest = Path.Combine(destFolder, name);
+                            string name = System.IO.Path.GetFileName(folder);
+                            string dest = System.IO.Path.Combine(destFolder, name);
                             CopyFolder(folder, dest);
                         }
                     }

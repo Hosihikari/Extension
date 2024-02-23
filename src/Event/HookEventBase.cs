@@ -15,7 +15,7 @@ public abstract class HookEventBase<TEventArgs, THookDelegate> : HookBase<THookD
     protected HookEventBase(string symbol, [CallerFilePath] string sourceFile = "")
         : base(symbol)
     {
-        _className = Path.GetFileNameWithoutExtension(
+        _className = System.IO.Path.GetFileNameWithoutExtension(
             sourceFile.Replace("\\", "/") /*fix if compile in windows*/
         );
     }
@@ -23,7 +23,7 @@ public abstract class HookEventBase<TEventArgs, THookDelegate> : HookBase<THookD
     protected HookEventBase(Delegate func, [CallerFilePath] string sourceFile = "")
         : base(func)
     {
-        _className = Path.GetFileNameWithoutExtension(
+        _className = System.IO.Path.GetFileNameWithoutExtension(
             sourceFile.Replace("\\", "/") /*fix if compile in windows*/
         );
     }

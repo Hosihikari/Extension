@@ -1,5 +1,4 @@
-﻿using Hosihikari.Minecraft.Extension.GlobalService;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace Hosihikari.Minecraft.Extension;
 
@@ -11,7 +10,7 @@ internal static class EntryPoint
     internal static void Main() // must be loaded
     {
         LevelTick.InitHook();
-        Global.Init();
+        GlobalService.Global.Init();
         if (!OperatingSystem.IsWindows())
         {
             PackHelper.PackHelper.Init();

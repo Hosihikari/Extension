@@ -84,7 +84,7 @@ public static unsafe class FormHandler
 
     private static readonly Dictionary<uint, FormBase> s_forms = new();
 
-    private static readonly Random s_random = new();
+    private static readonly System.Random s_random = new();
 
     // static FormHandler()
     // {
