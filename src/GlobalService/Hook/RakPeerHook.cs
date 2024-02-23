@@ -1,12 +1,11 @@
 using Hosihikari.NativeInterop.Hook.ObjectOriented;
 using Hosihikari.NativeInterop.Unmanaged;
-using static Hosihikari.Minecraft.RakNet;
 
 namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
 
-internal sealed class RakPeerHook() : HookBase<RakPeerHook.HookDelegate>(RakPeer.Original.Constructor_RakPeer)
+internal sealed class RakPeerHook() : HookBase<RakPeerHook.HookDelegateType>(RakPeer.Original.Constructor_RakPeer)
 {
-    public override HookDelegate HookedFunc =>
+    protected override HookDelegateType HookDelegate =>
         @this =>
         {
             Pointer<RakPeer> result = Original(@this);
@@ -15,5 +14,5 @@ internal sealed class RakPeerHook() : HookBase<RakPeerHook.HookDelegate>(RakPeer
             return result;
         };
 
-    internal delegate Pointer<RakPeer> HookDelegate(Pointer<RakPeer> @this);
+    internal delegate Pointer<RakPeer> HookDelegateType(Pointer<RakPeer> @this);
 }

@@ -1,9 +1,9 @@
 ﻿using Hosihikari.NativeInterop.Utils;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 
 namespace Hosihikari.Minecraft.Extension.PackHelper;
 
-#if !WINDOWS
 public enum PackType
 {
     ResourcePack,
@@ -11,6 +11,7 @@ public enum PackType
     Unknown = -1 //todo support auto detect ?
 }
 
+[UnsupportedOSPlatform("windows")]
 public static partial class PackHelper
 {
     public static void AddPack(PackType packType, string packDirectory, PackInfo info)
@@ -20,7 +21,7 @@ public static partial class PackHelper
             throw new DirectoryNotFoundException($"packDirectory {packDirectory} not found");
         }
 
-        string target = System.IO.Path.Combine(
+        string target = Path.Combine(
             Environment.CurrentDirectory,
             packType switch
             {
@@ -35,7 +36,7 @@ public static partial class PackHelper
             Directory.CreateDirectory(target);
         }
 
-        string link = System.IO.Path.Combine(target, info.PackId.ToString());
+        string link = Path.Combine(target, info.PackId.ToString());
         if (Directory.Exists(link))
         {
             if (LinkUtils.IsLink(link))
@@ -76,16 +77,16 @@ public static partial class PackHelper
                         string[] files = Directory.GetFiles(sourceFolder);
                         foreach (string file in files)
                         {
-                            string name = System.IO.Path.GetFileName(file);
-                            string dest = System.IO.Path.Combine(destFolder, name);
+                            string name = Path.GetFileName(file);
+                            string dest = Path.Combine(destFolder, name);
                             File.Copy(file, dest);
                         }
 
                         string[] folders = Directory.GetDirectories(sourceFolder);
                         foreach (string folder in folders)
                         {
-                            string name = System.IO.Path.GetFileName(folder);
-                            string dest = System.IO.Path.Combine(destFolder, name);
+                            string name = Path.GetFileName(folder);
+                            string dest = Path.Combine(destFolder, name);
                             CopyFolder(folder, dest);
                         }
                     }
@@ -103,4 +104,3 @@ public static partial class PackHelper
         }
     }
 }
-#endif

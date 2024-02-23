@@ -12,6 +12,9 @@ internal static class EntryPoint
     {
         LevelTick.InitHook();
         Global.Init();
-        PackHelper.PackHelper.Init();
+        if (!OperatingSystem.IsWindows())
+        {
+            PackHelper.PackHelper.Init();
+        }
     }
 }

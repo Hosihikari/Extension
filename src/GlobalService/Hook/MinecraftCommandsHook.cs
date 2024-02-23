@@ -4,9 +4,9 @@ using Hosihikari.NativeInterop.Unmanaged;
 namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
 
 internal sealed class MinecraftCommandsHook()
-    : HookBase<MinecraftCommandsHook.HookDelegate>(MinecraftCommands.Original.InitCoreEnums)
+    : HookBase<MinecraftCommandsHook.HookDelegateType>(MinecraftCommands.Original.InitCoreEnums)
 {
-    public override HookDelegate HookedFunc =>
+    protected override HookDelegateType HookDelegate =>
         (@this, a2, a3, a4, a5, a6) =>
         {
             Global.MinecraftCommands.Instance = @this.Target;
@@ -14,7 +14,7 @@ internal sealed class MinecraftCommandsHook()
             TryUninstall();
         };
 
-    internal delegate void HookDelegate(
+    internal delegate void HookDelegateType(
         Pointer<MinecraftCommands> @this,
         Reference<ItemRegistryRef> a1,
         Reference<IWorldRegistriesProvider> a2,

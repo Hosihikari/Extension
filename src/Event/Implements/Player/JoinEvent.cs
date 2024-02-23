@@ -1,6 +1,6 @@
 using Hosihikari.NativeInterop.Unmanaged;
 
-namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
+namespace Hosihikari.Minecraft.Extension.Event.Implements.Player;
 
 public sealed class JoinEventArgs : EventArgsBase
 {
@@ -13,16 +13,16 @@ public sealed class JoinEventArgs : EventArgsBase
 }
 
 public sealed class JoinEvent()
-    : HookEventBase<JoinEventArgs, JoinEvent.HookDelegate>(ServerNetworkHandler.Original.SendLoginMessageLocal)
+    : HookEventBase<JoinEventArgs, JoinEvent.HookDelegateType>(ServerNetworkHandler.Original.SendLoginMessageLocal)
 {
-    public delegate void HookDelegate(
+    public delegate void HookDelegateType(
         Pointer<ServerNetworkHandler> serverNetworkHandler,
         Reference<NetworkIdentifier> a1,
         Reference<ConnectionRequest> a2,
         Reference<ServerPlayer> a3
     );
 
-    public override HookDelegate HookedFunc =>
+    protected override HookDelegateType HookDelegate =>
         (handler, identifier, request, serverPlayerPtr) =>
         {
             JoinEventArgs e = new(serverPlayerPtr.Target);

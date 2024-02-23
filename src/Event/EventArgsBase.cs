@@ -1,4 +1,4 @@
-namespace Hosihikari.Minecraft.Extension.Events;
+namespace Hosihikari.Minecraft.Extension.Event;
 
 public abstract class EventArgsBase : EventArgs;
 

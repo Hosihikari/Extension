@@ -34,7 +34,7 @@ public static class LevelTick
         {
             if (
                 Function.Hook(
-                    SymbolHelper.DlsymPointer(SymbolHelper.QuerySymbol(GameSession.Original.Tick)),
+                    SymbolHelper.DlsymPointer(SymbolHelper.QuerySymbol(Minecraft.Original.TickSimtime)),
                     (delegate* unmanaged<void*, void>)&LevelTickHook,
                     out void* original,
                     out _

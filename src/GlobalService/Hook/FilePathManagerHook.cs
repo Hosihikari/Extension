@@ -4,9 +4,9 @@ using Hosihikari.NativeInterop.Unmanaged;
 namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
 
 internal sealed class FilePathManagerHook()
-    : HookBase<FilePathManagerHook.HookDelegate>(Core.FilePathManager.Original.Constructor_FilePathManager)
+    : HookBase<FilePathManagerHook.HookDelegateType>(Core.FilePathManager.Original.Constructor_FilePathManager)
 {
-    public override HookDelegate HookedFunc =>
+    protected override HookDelegateType HookDelegate =>
         (@this, a2, a3) =>
         {
             Pointer<Core.FilePathManager> result = Original(@this, a2, a3);
@@ -15,6 +15,6 @@ internal sealed class FilePathManagerHook()
             return result;
         };
 
-    internal delegate Pointer<Core.FilePathManager> HookDelegate(Pointer<Core.FilePathManager> @this,
+    internal delegate Pointer<Core.FilePathManager> HookDelegateType(Pointer<Core.FilePathManager> @this,
         Reference<Core.Path> path, bool a3);
 }

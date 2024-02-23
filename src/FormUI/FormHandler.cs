@@ -1,4 +1,4 @@
-﻿using Hosihikari.Minecraft.Extension.Events;
+﻿using Hosihikari.Minecraft.Extension.Event;
 using Hosihikari.Minecraft.Extension.FormUI.Element;
 using Hosihikari.NativeInterop.Unmanaged;
 using Hosihikari.NativeInterop.Unmanaged.STL;
@@ -20,20 +20,21 @@ public sealed class FormResponseEventArgs : EventArgsBase
     public string Data { get; }
 }
 
-public sealed unsafe class FormResponseEvent() : HookEventBase<FormResponseEventArgs, FormResponseEvent.HookDelegate>(
-    "?handle@?$PacketHandlerDispatcherInstance@VModalFormResponsePacket@@$0A@@@UEBAXAEBVNetworkIdentifier@@AEAVNetEventCallback@@AEAV?$shared_ptr@VPacket@@@std@@@Z")
+public sealed unsafe class FormResponseEvent()
+    : HookEventBase<FormResponseEventArgs, FormResponseEvent.HookDelegateType>(
+        "?handle@?$PacketHandlerDispatcherInstance@VModalFormResponsePacket@@$0A@@@UEBAXAEBVNetworkIdentifier@@AEAVNetEventCallback@@AEAV?$shared_ptr@VPacket@@@std@@@Z")
 {
     // private readonly string PacketHandlerDispatcherInstanceHandleSymbol = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ?
     //     "?handle@?$PacketHandlerDispatcherInstance@VModalFormResponsePacket@@$0A@@@UEBAXAEBVNetworkIdentifier@@AEAVNetEventCallback@@AEAV?$shared_ptr@VPacket@@@std@@@Z" :
     //     throw new NotImplementedException();
 
-    public delegate void HookDelegate(
+    public delegate void HookDelegateType(
         void* @this,
         Pointer<NetworkIdentifier> networkIdentifier,
         Pointer<ServerNetworkHandler> handler,
-        CxxSharedPtr sharedPtrPacket);
+        StdSharedPtr sharedPtrPacket);
 
-    public override HookDelegate HookedFunc =>
+    protected override HookDelegateType HookDelegate =>
         (@this, networkIdentifier, pointer, sharedPtr) =>
         {
             using NetworkIdentifier identifier = networkIdentifier.Target;
@@ -83,7 +84,7 @@ public static unsafe class FormHandler
 
     private static readonly Dictionary<uint, FormBase> s_forms = new();
 
-    private static readonly System.Random s_random = new();
+    private static readonly Random s_random = new();
 
     // static FormHandler()
     // {
@@ -210,7 +211,7 @@ public static unsafe class FormHandler
             bs.WriteString(new() { ptr = ptr, length = data.Length }, default, default);
         }
 
-        CxxSharedPtr sharedPtrPacket = MinecraftPackets.CreatePacket(MinecraftPacketIds.ShowModalForm);
+        StdSharedPtr sharedPtrPacket = MinecraftPackets.CreatePacket(MinecraftPacketIds.ShowModalForm);
         HeapAlloc.Delete(sharedPtrPacket.ctr);
         Packet packet = Packet.ConstructInstance((nint)sharedPtrPacket.ptr, false, false);
         packet.Read((Reference<ReadOnlyBinaryStream>)(nint)bs).Drop();

@@ -1,6 +1,6 @@
 ﻿using Hosihikari.NativeInterop.Unmanaged;
 
-namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
+namespace Hosihikari.Minecraft.Extension.Event.Implements.Player;
 
 public sealed class DeathEventArgs : EventArgsBase
 {
@@ -15,11 +15,12 @@ public sealed class DeathEventArgs : EventArgsBase
 //todo allow to cancel
 //the effect is not prevent death, but keep inventory and exp
 //Actor::getIsExperienceDropEnabled
-public sealed class DeathEvent() : HookEventBase<DeathEventArgs, DeathEvent.HookDelegate>(ServerPlayer.Original.Die)
+public sealed class DeathEvent() : HookEventBase<DeathEventArgs, DeathEvent.HookDelegateType>(ServerPlayer.Original.Die)
 {
-    public delegate void HookDelegate(Pointer<ServerPlayer> serverPlayerPtr, Reference<ActorDamageSource> damageSource);
+    public delegate void HookDelegateType(Pointer<ServerPlayer> serverPlayerPtr,
+        Reference<ActorDamageSource> damageSource);
 
-    public override HookDelegate HookedFunc =>
+    protected override HookDelegateType HookDelegate =>
         (serverPlayerPtr, damageSource) =>
         {
             DeathEventArgs e = new(serverPlayerPtr.Target);

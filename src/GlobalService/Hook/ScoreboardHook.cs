@@ -4,9 +4,9 @@ using Hosihikari.NativeInterop.Unmanaged;
 namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
 
 internal sealed class ScoreboardHook()
-    : HookBase<ScoreboardHook.HookDelegate>(ServerScoreboard.Original.Constructor_ServerScoreboard)
+    : HookBase<ScoreboardHook.HookDelegateType>(ServerScoreboard.Original.Constructor_ServerScoreboard)
 {
-    public override unsafe HookDelegate HookedFunc =>
+    protected override unsafe HookDelegateType HookDelegate =>
         (@this, a2, a3) =>
         {
             void* result = Original(@this, a2, a3);
@@ -15,6 +15,6 @@ internal sealed class ScoreboardHook()
             return result;
         };
 
-    internal unsafe delegate void* HookDelegate(Pointer<ServerScoreboard> @this, Pointer<CommandRegistry> a2,
+    internal unsafe delegate void* HookDelegateType(Pointer<ServerScoreboard> @this, Pointer<CommandRegistry> a2,
         Pointer<LevelStorage> a3);
 }

@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
 
 internal sealed class ServerNetworkHandlerHook()
-    : HookBase<ServerNetworkHandlerHook.HookDelegate>(ServerNetworkHandler.Original.AllowIncomingConnections)
+    : HookBase<ServerNetworkHandlerHook.HookDelegateType>(ServerNetworkHandler.Original.AllowIncomingConnections)
 {
-    public override HookDelegate HookedFunc =>
+    protected override HookDelegateType HookDelegate =>
         (@this, str, a2) =>
         {
             Original(@this, str, a2);
@@ -16,6 +16,6 @@ internal sealed class ServerNetworkHandlerHook()
             TryUninstall();
         };
 
-    internal delegate void HookDelegate(Pointer<ServerNetworkHandler> @this, StdString str,
+    internal delegate void HookDelegateType(Pointer<ServerNetworkHandler> @this, StdString str,
         [MarshalAs(UnmanagedType.U1)] bool a2);
 }

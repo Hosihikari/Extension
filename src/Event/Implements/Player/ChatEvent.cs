@@ -1,6 +1,6 @@
 ﻿using Hosihikari.NativeInterop.Unmanaged;
 
-namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
+namespace Hosihikari.Minecraft.Extension.Event.Implements.Player;
 
 public sealed class ChatEventArgs : CancelableEventArgsBase
 {
@@ -15,15 +15,15 @@ public sealed class ChatEventArgs : CancelableEventArgsBase
 }
 
 public sealed class ChatEvent()
-    : HookCancelableEventBase<ChatEventArgs, ChatEvent.HookDelegate>(ServerNetworkHandler.Original.Handle)
+    : HookCancelableEventBase<ChatEventArgs, ChatEvent.HookDelegateType>(ServerNetworkHandler.Original.Handle)
 {
-    public delegate void HookDelegate(
+    public delegate void HookDelegateType(
         Pointer<ServerNetworkHandler> networkHandler,
         Reference<NetworkIdentifier> networkIdentifier,
         Reference<TextPacket> textPacket
     );
 
-    public override HookDelegate HookedFunc =>
+    protected override HookDelegateType HookDelegate =>
         (networkHandlerPtr, networkIdentifierPtr, textPacketPtr) =>
         {
             ServerNetworkHandler networkHandler = networkHandlerPtr.Target;

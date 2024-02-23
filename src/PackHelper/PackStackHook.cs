@@ -6,9 +6,9 @@ using System.Text.Json.Nodes;
 namespace Hosihikari.Minecraft.Extension.PackHelper;
 
 internal sealed class PackStackHook(Action<JsonArray> proceedFunc)
-    : HookBase<PackStackHook.HookDelegate>(ResourcePackStack.Original.Deserialize)
+    : HookBase<PackStackHook.HookDelegateType>(ResourcePackStack.Original.Deserialize)
 {
-    public override unsafe HookDelegate HookedFunc =>
+    protected override unsafe HookDelegateType HookDelegate =>
         (resourcePackStack, stream, a3) =>
         {
             //load original steam (maybe a file stream from world_resource_packs.json)
@@ -32,5 +32,5 @@ internal sealed class PackStackHook(Action<JsonArray> proceedFunc)
             return Original(resourcePackStack, fakeStream, a3);
         };
 
-    internal unsafe delegate void* HookDelegate(void* @this, void* a2, void* a3);
+    internal unsafe delegate void* HookDelegateType(void* @this, void* a2, void* a3);
 }

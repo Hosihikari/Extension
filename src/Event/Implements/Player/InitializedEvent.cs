@@ -1,6 +1,6 @@
 using Hosihikari.NativeInterop.Unmanaged;
 
-namespace Hosihikari.Minecraft.Extension.Events.Implements.Player;
+namespace Hosihikari.Minecraft.Extension.Event.Implements.Player;
 
 public sealed class InitializedEventArgs : EventArgsBase
 {
@@ -13,12 +13,12 @@ public sealed class InitializedEventArgs : EventArgsBase
 }
 
 public sealed class InitializedEvent()
-    : HookEventBase<InitializedEventArgs, InitializedEvent.HookDelegate>(ServerPlayer.Original
+    : HookEventBase<InitializedEventArgs, InitializedEvent.HookDelegateType>(ServerPlayer.Original
         .SetLocalPlayerAsInitialized)
 {
-    public delegate void HookDelegate(Pointer<ServerPlayer> serverPlayerPtr);
+    public delegate void HookDelegateType(Pointer<ServerPlayer> serverPlayerPtr);
 
-    public override HookDelegate HookedFunc =>
+    protected override HookDelegateType HookDelegate =>
         serverPlayerPtr =>
         {
             InitializedEventArgs e = new(serverPlayerPtr.Target);

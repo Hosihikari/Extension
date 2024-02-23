@@ -3,9 +3,10 @@ using Hosihikari.NativeInterop.Unmanaged;
 
 namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
 
-internal sealed class DbStorageHook() : HookBase<DbStorageHook.HookDelegate>(DBStorage.Original.Constructor_DBStorage)
+internal sealed class DbStorageHook()
+    : HookBase<DbStorageHook.HookDelegateType>(DBStorage.Original.Constructor_DBStorage)
 {
-    public override unsafe HookDelegate HookedFunc =>
+    protected override unsafe HookDelegateType HookDelegate =>
         (@this, a2, a3) =>
         {
             Pointer<DBStorage> result = Original(@this, a2, a3);
@@ -15,5 +16,5 @@ internal sealed class DbStorageHook() : HookBase<DbStorageHook.HookDelegate>(DBS
             return result;
         };
 
-    internal unsafe delegate Pointer<DBStorage> HookDelegate(Pointer<DBStorage> @this, void* a2, void* a3);
+    internal unsafe delegate Pointer<DBStorage> HookDelegateType(Pointer<DBStorage> @this, void* a2, void* a3);
 }

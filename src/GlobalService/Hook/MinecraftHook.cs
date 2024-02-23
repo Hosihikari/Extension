@@ -3,9 +3,10 @@ using Hosihikari.NativeInterop.Unmanaged;
 
 namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
 
-internal sealed class MinecraftHook() : HookBase<MinecraftHook.HookDelegate>(Minecraft.Original.InitAsDedicatedServer)
+internal sealed class MinecraftHook()
+    : HookBase<MinecraftHook.HookDelegateType>(Minecraft.Original.InitAsDedicatedServer)
 {
-    public override HookDelegate HookedFunc =>
+    protected override HookDelegateType HookDelegate =>
         @this =>
         {
             Original(@this);
@@ -13,5 +14,5 @@ internal sealed class MinecraftHook() : HookBase<MinecraftHook.HookDelegate>(Min
             TryUninstall();
         };
 
-    internal delegate void HookDelegate(Pointer<Minecraft> @this);
+    internal delegate void HookDelegateType(Pointer<Minecraft> @this);
 }

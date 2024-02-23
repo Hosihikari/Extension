@@ -1,7 +1,7 @@
 ﻿using Hosihikari.NativeInterop.Hook.ObjectOriented;
 using System.Runtime.CompilerServices;
 
-namespace Hosihikari.Minecraft.Extension.Events;
+namespace Hosihikari.Minecraft.Extension.Event;
 
 public delegate Task AsyncEventHandler<in TEventArgs>(object? sender, TEventArgs e)
     where TEventArgs : EventArgsBase;
@@ -15,7 +15,7 @@ public abstract class HookEventBase<TEventArgs, THookDelegate> : HookBase<THookD
     protected HookEventBase(string symbol, [CallerFilePath] string sourceFile = "")
         : base(symbol)
     {
-        _className = System.IO.Path.GetFileNameWithoutExtension(
+        _className = Path.GetFileNameWithoutExtension(
             sourceFile.Replace("\\", "/") /*fix if compile in windows*/
         );
     }
@@ -23,7 +23,7 @@ public abstract class HookEventBase<TEventArgs, THookDelegate> : HookBase<THookD
     protected HookEventBase(Delegate func, [CallerFilePath] string sourceFile = "")
         : base(func)
     {
-        _className = System.IO.Path.GetFileNameWithoutExtension(
+        _className = Path.GetFileNameWithoutExtension(
             sourceFile.Replace("\\", "/") /*fix if compile in windows*/
         );
     }
