@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Hosihikari.Minecraft.Extension;
+namespace Hosihikari.Minecraft.Extension.Shared;
 
 internal static class EntryPoint
 {
@@ -11,9 +11,5 @@ internal static class EntryPoint
     {
         LevelTick.InitHook();
         GlobalService.Global.Init();
-        if (!OperatingSystem.IsWindows())
-        {
-            PackHelper.PackHelper.Init();
-        }
     }
 }

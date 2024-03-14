@@ -3,7 +3,7 @@ using Hosihikari.NativeInterop.Unmanaged;
 using Hosihikari.NativeInterop.Unmanaged.STL;
 using System.Runtime.InteropServices;
 
-namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
+namespace Hosihikari.Minecraft.Extension.Shared.Hook;
 
 internal sealed class ServerNetworkHandlerHook()
     : HookBase<ServerNetworkHandlerHook.HookDelegateType>(ServerNetworkHandler.Original.AllowIncomingConnections)

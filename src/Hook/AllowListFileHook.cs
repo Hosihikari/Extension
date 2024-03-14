@@ -1,4 +1,4 @@
-namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
+namespace Hosihikari.Minecraft.Extension.Shared.Hook;
 
 // internal sealed class AllowListFileHook : HookBase<AllowListFileHook.HookDelegate>
 // {

@@ -3,7 +3,7 @@ using Hosihikari.NativeInterop.Hook;
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 
-namespace Hosihikari.Minecraft.Extension;
+namespace Hosihikari.Minecraft.Extension.Shared;
 
 public static class LevelTick
 {

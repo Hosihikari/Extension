@@ -1,6 +1,6 @@
-using Hosihikari.Minecraft.Extension.GlobalService.Hook;
+using Hosihikari.Minecraft.Extension.Shared.Hook;
 
-namespace Hosihikari.Minecraft.Extension.GlobalService;
+namespace Hosihikari.Minecraft.Extension.Shared;
 
 public static class Global
 {

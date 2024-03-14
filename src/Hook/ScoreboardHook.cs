@@ -1,7 +1,7 @@
 using Hosihikari.NativeInterop.Hook.ObjectOriented;
 using Hosihikari.NativeInterop.Unmanaged;
 
-namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
+namespace Hosihikari.Minecraft.Extension.Shared.Hook;
 
 internal sealed class ScoreboardHook()
     : HookBase<ScoreboardHook.HookDelegateType>(ServerScoreboard.Original.Constructor_ServerScoreboard)

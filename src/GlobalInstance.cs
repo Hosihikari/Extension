@@ -1,7 +1,7 @@
 using Hosihikari.NativeInterop.Hook.ObjectOriented;
 using System.Runtime.CompilerServices;
 
-namespace Hosihikari.Minecraft.Extension.GlobalService;
+namespace Hosihikari.Minecraft.Extension.Shared;
 
 public sealed class GlobalInstance<T>
     where T : class

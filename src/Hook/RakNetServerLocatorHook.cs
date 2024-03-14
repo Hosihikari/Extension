@@ -2,7 +2,7 @@ using Hosihikari.NativeInterop.Hook.ObjectOriented;
 using Hosihikari.NativeInterop.Unmanaged;
 using Hosihikari.NativeInterop.Unmanaged.STL;
 
-namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
+namespace Hosihikari.Minecraft.Extension.Shared.Hook;
 
 internal sealed class RakNetServerLocatorHook()
     : HookBase<RakNetServerLocatorHook.HookDelegateType>(RakNetServerLocator.Original.StartAnnouncingServer)
