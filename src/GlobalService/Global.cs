@@ -1,4 +1,4 @@
-﻿using Hosihikari.Minecraft.Extension.GlobalService.Hook;
+using Hosihikari.Minecraft.Extension.GlobalService.Hook;
 
 namespace Hosihikari.Minecraft.Extension.GlobalService;
 

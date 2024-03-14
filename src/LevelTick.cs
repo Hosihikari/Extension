@@ -1,4 +1,4 @@
-﻿using Hosihikari.NativeInterop;
+using Hosihikari.NativeInterop;
 using Hosihikari.NativeInterop.Hook;
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;

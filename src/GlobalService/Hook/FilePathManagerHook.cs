@@ -1,4 +1,4 @@
-﻿using Hosihikari.NativeInterop.Hook.ObjectOriented;
+using Hosihikari.NativeInterop.Hook.ObjectOriented;
 using Hosihikari.NativeInterop.Unmanaged;
 
 namespace Hosihikari.Minecraft.Extension.GlobalService.Hook;
