@@ -1,7 +1,7 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 25.0.1706.0
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34707.107
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hosihikari.Minecraft.Extension", "src\Hosihikari.Minecraft.Extension.csproj", "{576C8874-AAD0-4A3F-9062-52501C7BC8E5}"
 EndProject
